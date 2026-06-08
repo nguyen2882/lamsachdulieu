@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bé Ngoan Mỗi Ngày - Game Rèn Luyện Thói Quen Tự Giác</title>
+  <meta name="description" content="Trò chơi theo dõi thói quen tốt hàng ngày giúp trẻ em rèn luyện thói quen tự giác, tích lũy sao thăng cấp và nhận các phần thưởng hấp dẫn từ cha mẹ.">
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0a8a5a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Bé Ngoan">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Styling -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Confetti Canvas for celebration -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="container">
+    
+    <!-- PWA Install Guide Banner -->
+    <div id="installBanner" class="install-banner">
+      <div class="install-header">
+        <img src="icon-192.png" alt="Icon Bé Ngoan" class="install-icon">
+        <div class="install-title">
+          <h3>Ghim Ra Màn Hình Điện Thoại</h3>
+          <p>Tải ứng dụng về máy để chơi offline bất kỳ lúc nào!</p>
+        </div>
+      </div>
+      <div id="installInstructions" class="install-body">
+        <!-- Will be filled by JS: standard install button or iOS Safari guide -->
+        Đang tải hướng dẫn...
+      </div>
+      <div class="install-actions">
+        <button id="btnCloseBanner" class="btn-close-banner">Đóng</button>
+        <button id="btnInstallApp" class="btn-install" style="display: none;">Cài Đặt Ngay</button>
+      </div>
+    </div>
+
+    <!-- Header & Gamification Progress Card -->
+    <header class="header-card">
+      <div class="profile-section">
+        <!-- Clickable avatar to edit -->
+        <div class="avatar-container" id="btnChangeAvatar" title="Đổi ảnh đại diện">
+          <div id="currentAvatar">
+            <!-- Filled by JS with cute SVG -->
+          </div>
+          <span class="badge-edit-avatar">✏️</span>
+        </div>
+        
+        <div class="stats-container">
+          <p class="welcome-text">Xin chào bạn nhỏ!</p>
+          <h1 class="kid-name" id="kidName">Bé Ngoan</h1>
+          
+          <div class="stars-badge" title="Số sao tích lũy được">
+            <span class="star-icon">⭐</span>
+            <span id="starCounter">0</span>
+          </div>
+        </div>
+
+        <!-- Streak Badge -->
+        <div class="streak-badge" id="streakBadge" title="Chuỗi ngày chăm chỉ">
+          🔥 <span id="streakCounter">0</span> ngày
+        </div>
+      </div>
+
+      <!-- Level & Progress Bar -->
+      <div class="level-container">
+        <div class="level-header">
+          <span class="level-title">Danh hiệu: <strong id="levelTitle">Bé Ngoan Tập Sự</strong></span>
+          <span class="level-number">Cấp <span id="levelNumber">1</span></span>
+        </div>
+        <div class="level-progress-bg">
+          <div class="level-progress-bar" id="levelProgressBar"></div>
+        </div>
+        <div class="level-header" style="justify-content: flex-end; font-size: 0.75rem; color: var(--text-muted);">
+          <span>Cần <span id="starsNeeded">100</span> sao để thăng cấp</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Daily Habits Checklist Section -->
+    <main>
+      <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 class="section-title">✨ Việc Ngoan Hôm Nay</h2>
+          <span style="font-size: 0.85rem; font-weight: 800; color: var(--primary); background: var(--primary-light); padding: 4px 10px; border-radius: 20px;" id="dateDisplay"></span>
+        </div>
+        <div class="habits-grid" id="habitsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Dream Rewards Section -->
+      <section class="rewards-section">
+        <h2 class="section-title" style="color: #d97706;">🎁 Bảng Quà Mơ Ước</h2>
+        <div id="rewardsGrid" class="habits-grid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Parent Trigger Button at bottom -->
+  <div class="parent-trigger-container">
+    <button id="btnParentArea" class="btn-parent-trigger">
+      ⚙️ Góc Cha Mẹ (Cài Đặt)
+    </button>
+  </div>
+
+  <!-- Security Verification Modal (Math Challenge) -->
+  <div id="modalSecurity" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">🔐 Vùng Bảo Mật</h2>
+        <button class="btn-close-modal" id="btnCloseSecurity">&times;</button>
+      </div>
+      <form id="securityForm" class="security-form" onsubmit="event.preventDefault();">
+        <p class="security-question">Cha mẹ hãy giải phép tính dưới đây để truy cập:</p>
+        <div class="math-expression" id="mathChallenge">5 + 7 = ?</div>
+        <input type="number" id="securityAnswer" class="security-input" required placeholder="?">
+        <button type="submit" class="btn-verify" id="btnVerifySecurity">Xác Nhận</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Parent Area Modal -->
+  <div id="modalParentArea" class="modal-overlay">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 class="modal-title">⚙️ Bảng Điều Khiển Của Cha Mẹ</h2>
+        <button class="btn-close-modal" id="btnCloseParentArea">&times;</button>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="parent-tabs">
+        <button class="tab-btn active" data-tab="tabHabits">Thói Quen</button>
+        <button class="tab-btn" data-tab="tabRewards">Phần Thưởng</button>
+        <button class="tab-btn" data-tab="tabConfig">Thiết Lập</button>
+      </div>
+
+      <!-- Tab: Habits Management -->
+      <div id="tabHabits" class="tab-pane active">
+        <form id="formAddHabit" class="security-form" style="text-align: left; align-items: stretch; gap: 12px;">
+          <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--primary);">➕ Thêm Thói Quen Mới</h3>
+          
+          <div class="form-group">
+            <label for="habitNameInput">Tên thói quen</label>
+            <input type="text" id="habitNameInput" class="form-control" placeholder="Ví dụ: Rửa bát giúp mẹ" required>
+          </div>
+          
+          <div class="row">
+            <div class="col class-group">
+              <label for="habitStarsInput">Số sao thưởng</label>
+              <input type="number" id="habitStarsInput" class="form-control" min="5" max="100" value="10" required>
+            </div>
+            <div class="col class-group">
+              <label>Icon minh họa</label>
+              <input type="hidden" id="habitIconInput" value="⭐">
+              <div class="icon-selector-grid" id="iconSelector">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-submit">Thêm Vào Danh Sách</button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 12px 0;">
+
+        <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--text-dark); margin-bottom: 8px;">📋 Quản Lý Danh Sách</h3>
+        <div class="admin-list" id="adminHabitsList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Tab: Rewards Management -->
+      <div id="tabRewards" class="tab-pane">
+        <form id="formAddReward" class="security-form" style="text-align: left; align-items: stretch; gap: 12px;">
+          <h3 style="font-weight: 800; font-size: 1.05rem; color: #ca8a04;">➕ Thêm Phần Thưởng Mơ Ước</h3>
+          
+          <div class="form-group">
+            <label for="rewardNameInput">Tên phần thưởng</label>
+            <input type="text" id="rewardNameInput" class="form-control" placeholder="Ví dụ: Được đi ăn kem cùng cả nhà" required>
+          </div>
+          
+          <div class="row">
+            <div class="col form-group">
+              <label for="rewardStarsInput">Sao cần đổi</label>
+              <input type="number" id="rewardStarsInput" class="form-control" min="10" max="2000" value="100" required>
+            </div>
+            <div class="col form-group">
+              <label>Icon phần thưởng</label>
+              <input type="hidden" id="rewardIconInput" value="🎁">
+              <div class="icon-selector-grid" id="rewardIconSelector">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-submit" style="background-color: #ca8a04;">Thêm Phần Thưởng</button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 12px 0;">
+
+        <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--text-dark); margin-bottom: 8px;">📋 Quản Lý Quà</h3>
+        <div class="admin-list" id="adminRewardsList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Tab: Configuration -->
+      <div id="tabConfig" class="tab-pane">
+        <div class="form-group">
+          <label for="kidNameInput">Tên của bé</label>
+          <input type="text" id="kidNameInput" class="form-control" value="Bé Ngoan">
+        </div>
+        
+        <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 8px;">
+          <label for="soundToggle" style="cursor: pointer;">🔊 Bật âm thanh chúc mừng</label>
+          <input type="checkbox" id="soundToggle" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
+        </div>
+
+        <div style="height: 10px;"></div>
+        
+        <h3 style="font-weight: 800; font-size: 1.05rem; color: #ef4444; margin-bottom: 8px;">⚠️ Vùng Nguy Hiểm</h3>
+        <div class="config-buttons">
+          <button id="btnResetStars" class="btn-danger">
+            🔄 Đặt Lại Sao & Cấp Độ Về 0
+          </button>
+          <button id="btnResetAll" class="btn-danger" style="background-color: #fef2f2; border-color: #fca5a5;">
+            💥 Xóa Tất Cả & Cài Lại Mặc Định
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avatar Change Modal -->
+  <div id="modalAvatar" class="modal-overlay">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h2 class="modal-title">🐯 Chọn Bạn Đồng Hành</h2>
+        <button class="btn-close-modal" id="btnCloseAvatar">&times;</button>
+      </div>
+      <p style="font-size: 0.95rem; text-align: center; color: var(--text-muted); font-weight: 600;">
+        Bé hãy chọn một con vật ngộ nghĩnh làm ảnh đại diện nhé!
+      </p>
+      <div class="avatar-selection-grid" id="avatarSelectionGrid">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript application logic -->
+  <script src="app.js"></script>
+</body>
+</html>
