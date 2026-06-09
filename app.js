@@ -1,899 +1,1111 @@
-// === 1. HỆ THỐNG AVATAR SVG ĐÁNG YÊU (OFFLINE) ===
-const AVATARS = {
-  cat: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <circle cx="50" cy="55" r="35" fill="#f59e0b"/>
-    <polygon points="20,30 40,45 20,55" fill="#d97706"/>
-    <polygon points="80,30 60,45 80,55" fill="#d97706"/>
-    <polygon points="25,35 35,45 25,50" fill="#fca5a5"/>
-    <polygon points="75,35 65,45 75,50" fill="#fca5a5"/>
-    <circle cx="38" cy="55" r="4" fill="#1e293b"/>
-    <circle cx="62" cy="55" r="4" fill="#1e293b"/>
-    <circle cx="36" cy="53" r="1.5" fill="#fff"/>
-    <circle cx="60" cy="53" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="65" rx="4" ry="3" fill="#f43f5e"/>
-    <ellipse cx="32" cy="64" rx="5" ry="3" fill="#fecdd3"/>
-    <ellipse cx="68" cy="64" rx="5" ry="3" fill="#fecdd3"/>
-    <path d="M50,67 Q47,72 42,70 M50,67 Q53,72 58,70" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    <path d="M25,60 L12,58 M25,64 L10,64 M25,68 L12,70 M75,60 L88,58 M75,64 L90,64 M75,68 L88,70" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
-  </svg>`,
-  panda: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <circle cx="50" cy="55" r="35" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-    <circle cx="22" cy="30" r="11" fill="#1e293b"/>
-    <circle cx="78" cy="30" r="11" fill="#1e293b"/>
-    <circle cx="22" cy="30" r="5" fill="#475569"/>
-    <circle cx="78" cy="30" r="5" fill="#475569"/>
-    <ellipse cx="35" cy="55" rx="8" ry="11" fill="#1e293b" transform="rotate(-15, 35, 55)"/>
-    <ellipse cx="65" cy="55" rx="8" ry="11" fill="#1e293b" transform="rotate(15, 65, 55)"/>
-    <circle cx="35" cy="52" r="3" fill="#ffffff"/>
-    <circle cx="65" cy="52" r="3" fill="#ffffff"/>
-    <ellipse cx="50" cy="65" rx="4" ry="2.5" fill="#1e293b"/>
-    <path d="M50,67 Q47,71 43,69 M50,67 Q53,71 57,69" stroke="#1e293b" stroke-width="2" stroke-linecap="round" fill="none"/>
-    <ellipse cx="23" cy="63" rx="4" ry="2.5" fill="#fca5a5" opacity="0.6"/>
-    <ellipse cx="77" cy="63" rx="4" ry="2.5" fill="#fca5a5" opacity="0.6"/>
-  </svg>`,
-  rabbit: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <rect x="25" y="10" width="13" height="32" rx="6.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-    <rect x="62" y="10" width="13" height="32" rx="6.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-    <rect x="28" y="15" width="7" height="22" rx="3.5" fill="#fca5a5"/>
-    <rect x="65" y="15" width="7" height="22" rx="3.5" fill="#fca5a5"/>
-    <circle cx="50" cy="58" r="32" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-    <circle cx="38" cy="57" r="4" fill="#1e293b"/>
-    <circle cx="62" cy="57" r="4" fill="#1e293b"/>
-    <circle cx="36" cy="55" r="1.5" fill="#fff"/>
-    <circle cx="60" cy="55" r="1.5" fill="#fff"/>
-    <polygon points="46,63 54,63 50,67" fill="#f43f5e"/>
-    <path d="M50,67 Q47,71 43,69 M50,67 Q53,71 57,69" stroke="#1e293b" stroke-width="2" stroke-linecap="round" fill="none"/>
-    <ellipse cx="24" cy="65" rx="5" ry="3.5" fill="#fca5a5" opacity="0.7"/>
-    <ellipse cx="76" cy="65" rx="5" ry="3.5" fill="#fca5a5" opacity="0.7"/>
-  </svg>`,
-  lion: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <path d="M50,15 L58,23 L68,17 L72,27 L82,27 L82,37 L91,42 L87,51 L92,61 L84,67 L85,77 L75,79 L71,88 L61,86 L53,92 L47,92 L39,86 L29,88 L25,79 L15,77 L16,67 L8,61 L13,51 L9,42 L18,37 L18,27 L28,27 L32,17 L42,23 Z" fill="#d97706"/>
-    <circle cx="50" cy="55" r="30" fill="#facc15"/>
-    <circle cx="28" cy="38" r="7" fill="#d97706"/>
-    <circle cx="72" cy="38" r="7" fill="#d97706"/>
-    <circle cx="28" cy="38" r="3" fill="#fef08a"/>
-    <circle cx="72" cy="38" r="3" fill="#fef08a"/>
-    <circle cx="38" cy="53" r="4" fill="#1e293b"/>
-    <circle cx="62" cy="53" r="4" fill="#1e293b"/>
-    <circle cx="36" cy="51" r="1.5" fill="#fff"/>
-    <circle cx="60" cy="51" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="64" rx="7" ry="5" fill="#fef08a"/>
-    <polygon points="47,62 53,62 50,65" fill="#1e293b"/>
-    <path d="M50,65 L50,68" stroke="#1e293b" stroke-width="1.5" stroke-linecap="round"/>
-    <ellipse cx="27" cy="61" rx="4" ry="2.5" fill="#f87171" opacity="0.6"/>
-    <ellipse cx="73" cy="61" rx="4" ry="2.5" fill="#f87171" opacity="0.6"/>
-  </svg>`,
-  penguin: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <circle cx="50" cy="55" r="35" fill="#1e293b"/>
-    <path d="M20,58 Q8,48 13,38 Q18,40 20,46" fill="#1e293b"/>
-    <path d="M80,58 Q92,48 87,38 Q82,40 80,46" fill="#1e293b"/>
-    <ellipse cx="50" cy="58" rx="25" ry="28" fill="#ffffff"/>
-    <path d="M50,30 C30,30 28,55 35,62 C40,66 45,55 50,55 C55,55 60,66 65,62 C72,55 70,30 50,30 Z" fill="#1e293b"/>
-    <ellipse cx="50" cy="58" rx="19" ry="23" fill="#ffffff"/>
-    <circle cx="38" cy="48" r="4" fill="#1e293b"/>
-    <circle cx="62" cy="48" r="4" fill="#1e293b"/>
-    <circle cx="36" cy="46" r="1.5" fill="#fff"/>
-    <circle cx="60" cy="46" r="1.5" fill="#fff"/>
-    <polygon points="46,52 54,52 50,59" fill="#ea580c"/>
-    <ellipse cx="30" cy="56" rx="4" ry="2.5" fill="#fca5a5" opacity="0.7"/>
-    <ellipse cx="70" cy="56" rx="4" ry="2.5" fill="#fca5a5" opacity="0.7"/>
-  </svg>`,
-  fox: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <polygon points="18,25 38,40 18,55" fill="#ea580c"/>
-    <polygon points="82,25 62,40 82,55" fill="#ea580c"/>
-    <polygon points="22,29 33,38 23,48" fill="#fca5a5"/>
-    <polygon points="78,29 67,38 77,48" fill="#fca5a5"/>
-    <circle cx="50" cy="55" r="35" fill="#f97316"/>
-    <path d="M15,55 C15,70 30,85 50,85 C70,85 85,70 85,55 C85,52 82,48 80,48 C70,55 60,50 50,55 C40,50 30,55 20,48 C18,48 15,52 15,55 Z" fill="#ffffff"/>
-    <circle cx="36" cy="53" r="4" fill="#1e293b"/>
-    <circle cx="64" cy="53" r="4" fill="#1e293b"/>
-    <circle cx="34" cy="51" r="1.5" fill="#fff"/>
-    <circle cx="62" cy="51" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="62" rx="4.5" ry="3.5" fill="#1e293b"/>
-    <ellipse cx="25" cy="62" rx="4.5" ry="3" fill="#fca5a5" opacity="0.7"/>
-    <ellipse cx="74" cy="62" rx="4.5" ry="3" fill="#fca5a5" opacity="0.7"/>
-  </svg>`,
-  bear: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <circle cx="50" cy="55" r="35" fill="#78350f"/>
-    <circle cx="22" cy="30" r="11" fill="#78350f"/>
-    <circle cx="78" cy="30" r="11" fill="#78350f"/>
-    <circle cx="22" cy="30" r="6" fill="#fef08a" opacity="0.6"/>
-    <circle cx="78" cy="30" r="6" fill="#fef08a" opacity="0.6"/>
-    <circle cx="37" cy="52" r="4" fill="#1e293b"/>
-    <circle cx="63" cy="52" r="4" fill="#1e293b"/>
-    <circle cx="35" cy="50" r="1.5" fill="#fff"/>
-    <circle cx="61" cy="50" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="66" rx="11" ry="8" fill="#fef08a" opacity="0.8"/>
-    <ellipse cx="50" cy="63" rx="4.5" ry="3" fill="#1e293b"/>
-    <path d="M50,65 Q47,68 44,67 M50,65 Q53,68 56,67" stroke="#1e293b" stroke-width="2" stroke-linecap="round" fill="none"/>
-    <ellipse cx="26" cy="62" rx="4" ry="2.5" fill="#fca5a5" opacity="0.6"/>
-    <ellipse cx="74" cy="62" rx="4" ry="2.5" fill="#fca5a5" opacity="0.6"/>
-  </svg>`,
-  pig: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <circle cx="50" cy="55" r="35" fill="#fbcfe8"/>
-    <path d="M22,28 Q15,15 28,20 Q32,25 22,28" fill="#f472b6"/>
-    <path d="M78,28 Q85,15 72,20 Q68,25 78,28" fill="#f472b6"/>
-    <circle cx="37" cy="50" r="4" fill="#1e293b"/>
-    <circle cx="63" cy="50" r="4" fill="#1e293b"/>
-    <circle cx="35" cy="48" r="1.5" fill="#fff"/>
-    <circle cx="61" cy="48" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="62" rx="10" ry="7" fill="#f472b6"/>
-    <circle cx="45" cy="62" r="2" fill="#1e293b"/>
-    <circle cx="55" cy="62" r="2" fill="#1e293b"/>
-    <ellipse cx="23" cy="60" rx="4" ry="2.5" fill="#f472b6" opacity="0.4"/>
-    <ellipse cx="77" cy="60" rx="4" ry="2.5" fill="#f472b6" opacity="0.4"/>
-  </svg>`
-};
+/* ==========================================================================
+   DATACLEANER PRO - CORE JAVASCRIPT LOGIC
+   ========================================================================== */
 
-// === 2. DỮ LIỆU MẶC ĐỊNH BAN ĐẦU ===
-const DEFAULT_HABITS = [
-  { id: "habit_1", name: "Đánh răng sạch sẽ sáng & tối", stars: 10, icon: "🪥", completed: false },
-  { id: "habit_2", name: "Tự giác học bài & đọc sách 30 phút", stars: 20, icon: "📚", completed: false },
-  { id: "habit_3", name: "Giúp bố mẹ rửa bát đĩa sạch sẽ", stars: 15, icon: "🍽️", completed: false },
-  { id: "habit_4", name: "Dọn dẹp đồ chơi sau khi chơi xong", stars: 10, icon: "🧸", completed: false },
-  { id: "habit_5", name: "Ăn hết suất và ăn thật nhiều rau", stars: 10, icon: "🥦", completed: false },
-  { id: "habit_6", name: "Tự đi ngủ đúng giờ (trước 21h30)", stars: 15, icon: "🛌", completed: false }
-];
+document.addEventListener('DOMContentLoaded', () => {
+  // --- UI Elements ---
+  const body = document.body;
+  const themeToggle = document.getElementById('themeToggle');
+  const sunIcon = themeToggle.querySelector('.sun-icon');
+  const moonIcon = themeToggle.querySelector('.moon-icon');
 
-const DEFAULT_REWARDS = [
-  { id: "reward_1", name: "Được cả nhà dắt đi ăn kem", stars: 50, icon: "🍦" },
-  { id: "reward_2", name: "Thêm 30 phút xem TV hoặc chơi game", stars: 100, icon: "🎮" },
-  { id: "reward_3", name: "Mua một món đồ chơi nhỏ xinh", stars: 300, icon: "🎁" },
-  { id: "reward_4", name: "Đi xem phim rạp vào cuối tuần", stars: 500, icon: "🎬" }
-];
+  const tabBtnFile = document.getElementById('tabBtnFile');
+  const tabBtnRaw = document.getElementById('tabBtnRaw');
+  const panelFile = document.getElementById('panelFile');
+  const panelRaw = document.getElementById('panelRaw');
 
-const HABIT_ICONS = ["🪥", "🍽️", "📚", "🧸", "🥦", "🛌", "🧹", "🎒", "💧", "🚴", "🎨", "⭐"];
-const REWARD_ICONS = ["🍦", "🎮", "🎁", "🎬", "🎠", "🍰", "🍭", "⚽", "🚲", "🍕", "📖", "🧸"];
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const selectedFileInfo = document.getElementById('selectedFileInfo');
+  const selectedFileName = document.getElementById('selectedFileName');
+  const selectedFileSize = document.getElementById('selectedFileSize');
+  const removeFileBtn = document.getElementById('removeFileBtn');
 
-const LEVEL_TITLES = [
-  "Bé Ngoan Tập Sự",
-  "Chiến Binh Chăm Chỉ",
-  "Hiệp Sĩ Thói Quen",
-  "Dũng Sĩ Tự Giác",
-  "Siêu Nhân Tự Lập",
-  "Trưởng Thành Vượt Trội"
-];
+  const rawTextarea = document.getElementById('rawTextarea');
+  const clearRawTextBtn = document.getElementById('clearRawTextBtn');
+  const loadExampleBtn = document.getElementById('loadExampleBtn');
 
-// === 3. QUẢN LÝ TRẠNG THÁI (STATE) VÀ LOCALSTORAGE ===
-let state = {
-  kidName: "Bé Ngoan",
-  stars: 0,
-  level: 1,
-  avatar: "cat",
-  streak: 0,
-  lastOpenDate: "",
-  soundEnabled: true,
-  habits: [...DEFAULT_HABITS],
-  rewards: [...DEFAULT_REWARDS]
-};
+  const columnMappingSection = document.getElementById('columnMappingSection');
+  const mapNameCol = document.getElementById('mapNameCol');
+  const mapPhoneCol = document.getElementById('mapPhoneCol');
+  const mapEmailCol = document.getElementById('mapEmailCol');
+  const colMapSelects = document.querySelectorAll('.col-map-select');
 
-// Hàm tải trạng thái từ localStorage
-function loadState() {
-  const saved = localStorage.getItem("be_ngoan_state");
-  if (saved) {
-    try {
-      state = JSON.parse(saved);
-      // Đảm bảo không bị thiếu các thuộc tính mới nếu có cập nhật cấu trúc
-      if (!state.habits || state.habits.length === 0) state.habits = [...DEFAULT_HABITS];
-      if (!state.rewards || state.rewards.length === 0) state.rewards = [...DEFAULT_REWARDS];
-      if (state.soundEnabled === undefined) state.soundEnabled = true;
-    } catch (e) {
-      console.error("Lỗi parse LocalStorage:", e);
-    }
-  }
+  const btnProcess = document.getElementById('btnProcess');
+  const processBtnText = document.getElementById('processBtnText');
+  const spinner = btnProcess.querySelector('.spinner');
+  const iconSparkles = btnProcess.querySelector('.icon-sparkles');
+
+  // Rules checkboxes
+  const ruleNameCapitalize = document.getElementById('ruleNameCapitalize');
+  const ruleNameTrim = document.getElementById('ruleNameTrim');
+  const ruleNameNoAccents = document.getElementById('ruleNameNoAccents');
+  const rulePhoneDigitsOnly = document.getElementById('rulePhoneDigitsOnly');
+  const rulePhoneCountryCode = document.getElementById('rulePhoneCountryCode');
+  const phoneFormat = document.getElementById('phoneFormat');
+  const phoneFormatSelectContainer = document.getElementById('phoneFormatSelectContainer');
+  const rulePhoneConvertOldPrefix = document.getElementById('rulePhoneConvertOldPrefix');
+  const rulePhoneValidate = document.getElementById('rulePhoneValidate');
+  const ruleEmailLowercase = document.getElementById('ruleEmailLowercase');
+  const ruleEmailValidate = document.getElementById('ruleEmailValidate');
+  const ruleEmailFilterDisposable = document.getElementById('ruleEmailFilterDisposable');
+  const ruleDeduplicate = document.getElementById('ruleDeduplicate');
+  const dedupCriteria = document.getElementById('dedupCriteria');
+  const dupColumnSelectContainer = document.getElementById('dupColumnSelectContainer');
+  const ruleRemoveEmpty = document.getElementById('ruleRemoveEmpty');
+
+  // Results elements
+  const resultsDashboard = document.getElementById('resultsDashboard');
+  const statTotalRows = document.getElementById('statTotalRows');
+  const statValidRows = document.getElementById('statValidRows');
+  const statFixedRows = document.getElementById('statFixedRows');
+  const statInvalidRows = document.getElementById('statInvalidRows');
+  const statDupsRemoved = document.getElementById('statDupsRemoved');
   
-  checkDailyReset();
-}
-
-// Hàm lưu trạng thái vào localStorage
-function saveState() {
-  localStorage.setItem("be_ngoan_state", JSON.stringify(state));
-}
-
-// Hàm kiểm tra reset thói quen hàng ngày và cập nhật chuỗi streak
-function checkDailyReset() {
-  const todayStr = new Date().toDateString();
+  const chartCircleProgress = document.getElementById('chartCircleProgress');
+  const chartPercentage = document.getElementById('chartPercentage');
+  const pctClean = document.getElementById('pctClean');
+  const pctDirty = document.getElementById('pctDirty');
   
-  if (state.lastOpenDate !== todayStr) {
-    // Nếu là ngày mới
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toDateString();
-    
-    // Kiểm tra xem hôm qua bé có hoàn thành thói quen nào không
-    const completedYesterday = state.habits.some(h => h.completed);
-    
-    if (state.lastOpenDate === yesterdayStr && completedYesterday) {
-      // Tiếp tục chuỗi streak
-      // Giữ nguyên chuỗi
-    } else if (state.lastOpenDate !== "") {
-      // Đứt chuỗi streak (không mở app hoặc không làm việc tốt hôm qua)
-      state.streak = 0;
-    }
-    
-    // Reset trạng thái hoàn thành của các thói quen cho ngày mới
-    state.habits.forEach(h => h.completed = false);
-    
-    state.lastOpenDate = todayStr;
-    saveState();
-  }
-}
+  const logsContainer = document.getElementById('logsContainer');
+  const previewTableBody = document.getElementById('previewTableBody');
+  const btnExportCSV = document.getElementById('btnExportCSV');
+  const btnExportXLSX = document.getElementById('btnExportXLSX');
 
-// === 4. TRÌNH TỔNG HỢP ÂM THANH (WEB AUDIO API - OFFLINE) ===
-function playSynthesizedSound(type) {
-  if (!state.soundEnabled) return;
-  
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    
-    const audioCtx = new AudioContextClass();
-    
-    if (type === "chime") {
-      // Âm thanh chúc mừng (Chime arpeggio đi lên ngọt ngào)
-      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-      notes.forEach((freq, index) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.07);
-        
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime + index * 0.07);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.07 + 0.25);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start(audioCtx.currentTime + index * 0.07);
-        osc.stop(audioCtx.currentTime + index * 0.07 + 0.3);
-      });
-    } else if (type === "levelup") {
-      // Âm thanh thăng cấp hoành tráng (Victory fanfare)
-      const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // C4, E4, G4, C5, E5, G5, C6
-      notes.forEach((freq, index) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        
-        osc.type = index === notes.length - 1 ? "sine" : "triangle";
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.1);
-        
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime + index * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + index * 0.1 + 0.35);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        
-        osc.start(audioCtx.currentTime + index * 0.1);
-        osc.stop(audioCtx.currentTime + index * 0.1 + 0.4);
-      });
-    } else if (type === "undo") {
-      // Âm thanh khi hủy chọn (Downward sweep)
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(392.00, audioCtx.currentTime); // G4
-      osc.frequency.exponentialRampToValueAtTime(261.63, audioCtx.currentTime + 0.18); // C4
-      
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-      
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.2);
-    }
-  } catch (e) {
-    console.warn("Không phát được âm thanh (có thể do trình duyệt chặn AudioContext trước tương tác đầu tiên):", e);
-  }
-}
+  // --- App State ---
+  let activeTab = 'file'; // 'file' or 'raw'
+  let loadedFileData = null; // Stores the parsed array of arrays representing the file
+  let loadedFileHeaders = []; // Stores column headers
+  let cleanedData = []; // Cleaned rows for export
+  let currentFileName = '';
 
-// === 5. HIỆU ỨNG PHÁO GIẤY CANVAS CONFETTI ===
-const canvas = document.getElementById("confetti-canvas");
-const ctx = canvas.getContext("2d");
-let particles = [];
-let animFrameId = null;
+  // Disposable email domains list
+  const disposableEmailDomains = new Set([
+    'yopmail.com', 'mailinator.com', '10minutemail.com', 'tempmail.com', 'temp-mail.org',
+    'getairmail.com', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'boun.cr',
+    'trashmail.com', 'dropmail.me', '10minutemail.co.za', 'tempmailaddress.com', 'crazymailing.com'
+  ]);
 
-class ConfettiParticle {
-  constructor(x, y, isBig = false) {
-    this.x = x;
-    this.y = y;
-    this.size = Math.random() * (isBig ? 12 : 8) + (isBig ? 8 : 4);
-    this.color = `hsl(${Math.random() * 360}, 90%, 60%)`;
-    this.speedX = Math.random() * (isBig ? 12 : 6) - (isBig ? 6 : 3);
-    this.speedY = Math.random() * (isBig ? -14 : -8) - (isBig ? 6 : 4);
-    this.gravity = 0.25;
-    this.rotation = Math.random() * 360;
-    this.rotationSpeed = Math.random() * 12 - 6;
-    this.opacity = 1;
-    this.type = Math.random() > 0.4 ? "rect" : "circle";
-  }
-  
-  update() {
-    this.speedY += this.gravity;
-    this.x += this.speedX;
-    this.y += this.speedY;
-    this.rotation += this.rotationSpeed;
-    if (this.y > canvas.height) {
-      this.opacity = 0;
-    }
-  }
-  
-  draw() {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate((this.rotation * Math.PI) / 180);
-    ctx.fillStyle = this.color;
-    ctx.globalAlpha = this.opacity;
-    
-    if (this.type === "rect") {
-      ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+  // Old VN phone prefix mapping (11 digits -> 10 digits)
+  const vnPhonePrefixMap = {
+    // Viettel
+    '0162': '032', '0163': '033', '0164': '034', '0165': '035', 
+    '0166': '036', '0167': '037', '0168': '038', '0169': '039',
+    // Mobifone
+    '0120': '070', '0121': '079', '0122': '077', '0126': '076', '0128': '078',
+    // Vinaphone
+    '0123': '083', '0124': '084', '0125': '085', '0127': '081', '0129': '082',
+    // Vietnamobile
+    '0186': '056', '0188': '058',
+    // Gmobile
+    '0199': '059'
+  };
+
+  // ==========================================================================
+  // --- Theme Toggle Handler ---
+  // ==========================================================================
+  const saveTheme = (theme) => {
+    localStorage.setItem('theme', theme);
+  };
+
+  const getSavedTheme = () => {
+    return localStorage.getItem('theme');
+  };
+
+  const applyTheme = (theme) => {
+    if (theme === 'dark') {
+      body.classList.add('dark-theme');
+      sunIcon.style.display = 'none';
+      moonIcon.style.display = 'block';
     } else {
-      ctx.beginPath();
-      ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
-      ctx.fill();
+      body.classList.remove('dark-theme');
+      sunIcon.style.display = 'block';
+      moonIcon.style.display = 'none';
     }
-    ctx.restore();
+  };
+
+  // Initialize Theme
+  const savedTheme = getSavedTheme();
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyTheme('dark');
   }
-}
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
+  themeToggle.addEventListener('click', () => {
+    const isDark = body.classList.contains('dark-theme');
+    const newTheme = isDark ? 'light' : 'dark';
+    applyTheme(newTheme);
+    saveTheme(newTheme);
+  });
 
-function animateConfetti() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  particles.forEach((p, index) => {
-    p.update();
-    p.draw();
-    if (p.opacity <= 0) {
-      particles.splice(index, 1);
+  // ==========================================================================
+  // --- Options Dependencies Helper ---
+  // ==========================================================================
+  rulePhoneCountryCode.addEventListener('change', () => {
+    if (rulePhoneCountryCode.checked) {
+      phoneFormatSelectContainer.style.display = 'flex';
+    } else {
+      phoneFormatSelectContainer.style.display = 'none';
     }
   });
-  
-  if (particles.length > 0) {
-    animFrameId = requestAnimationFrame(animateConfetti);
-  } else {
-    cancelAnimationFrame(animFrameId);
-    animFrameId = null;
-  }
-}
 
-function triggerConfetti(burstCount = 50, isLevelUp = false) {
-  const leftX = 50;
-  const rightX = canvas.width - 50;
-  const bottomY = canvas.height - 40;
-  
-  if (isLevelUp) {
-    // Pháo giấy lớn rực rỡ từ nhiều vị trí
-    for (let i = 0; i < burstCount; i++) {
-      particles.push(new ConfettiParticle(canvas.width / 2, canvas.height / 2 + 100, true));
-      particles.push(new ConfettiParticle(leftX, bottomY, true));
-      particles.push(new ConfettiParticle(rightX, bottomY, true));
+  ruleDeduplicate.addEventListener('change', () => {
+    if (ruleDeduplicate.checked) {
+      dupColumnSelectContainer.style.display = 'flex';
+    } else {
+      dupColumnSelectContainer.style.display = 'none';
     }
-  } else {
-    // Pháo giấy ăn mừng thói quen
-    for (let i = 0; i < burstCount / 2; i++) {
-      particles.push(new ConfettiParticle(leftX, bottomY));
-      particles.push(new ConfettiParticle(rightX, bottomY));
+  });
+
+  // ==========================================================================
+  // --- Input Tab Controls ---
+  // ==========================================================================
+  const switchTab = (tab) => {
+    activeTab = tab;
+    if (tab === 'file') {
+      tabBtnFile.classList.add('active');
+      tabBtnRaw.classList.remove('active');
+      panelFile.classList.add('active');
+      panelRaw.classList.remove('active');
+      
+      // Update process button state
+      validateProcessButtonState();
+    } else {
+      tabBtnRaw.classList.add('active');
+      tabBtnFile.classList.remove('active');
+      panelRaw.classList.add('active');
+      panelFile.classList.add('active'); // Wait, typo: should be display raw only
+      panelFile.classList.remove('active');
+      columnMappingSection.style.display = 'none';
+      
+      // Update process button state
+      validateProcessButtonState();
+    }
+  };
+
+  tabBtnFile.addEventListener('click', () => switchTab('file'));
+  tabBtnRaw.addEventListener('click', () => switchTab('raw'));
+
+  // ==========================================================================
+  // --- Manual/Raw Text Panel Actions ---
+  // ==========================================================================
+  rawTextarea.addEventListener('input', () => {
+    validateProcessButtonState();
+  });
+
+  clearRawTextBtn.addEventListener('click', () => {
+    rawTextarea.value = '';
+    validateProcessButtonState();
+  });
+
+  loadExampleBtn.addEventListener('click', () => {
+    rawTextarea.value = `Họ và Tên,Số điện thoại,Email
+Nguyễn Văn A, 0912 345 678, nguYenvAna@gmail.com
+  trần thị b   , 0168.999.8888, tranthib@yopmail.com
+Lê Hoàng Nam, +84 905 123 456, namlh@outlook.com
+Phạm Minh Đức, 097-888-9999, ducpm@invalid-email
+Vũ Thị Mai, 0123.456.7890, maivt123@gmail.com
+Nguyễn Văn A, 0912345678, nguYenvAna@gmail.com
+Hoàng Anh Tuấn, 098765, tuanha@gmail.com
+Nguyễn Thị Hương, 0355443322, huongnt@temp-mail.org
+,,`;
+    validateProcessButtonState();
+  });
+
+  // ==========================================================================
+  // --- File Drag & Drop Panel Actions ---
+  // ==========================================================================
+  browseBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleSelectedFile(file);
+  });
+
+  // Drag over effects
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const file = dt.files[0];
+    if (file) handleSelectedFile(file);
+  });
+
+  removeFileBtn.addEventListener('click', () => {
+    resetFileInfo();
+  });
+
+  const resetFileInfo = () => {
+    loadedFileData = null;
+    loadedFileHeaders = [];
+    currentFileName = '';
+    fileInput.value = '';
+    selectedFileInfo.style.display = 'none';
+    dropzone.style.display = 'block';
+    columnMappingSection.style.display = 'none';
+    validateProcessButtonState();
+  };
+
+  const handleSelectedFile = (file) => {
+    const maxSizeBytes = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxSizeBytes) {
+      alert('Tệp quá lớn! Vui lòng chọn tệp dưới 20MB.');
+      return;
+    }
+
+    currentFileName = file.name;
+    selectedFileName.textContent = file.name;
+    selectedFileSize.textContent = formatBytes(file.size);
+    
+    dropzone.style.display = 'none';
+    selectedFileInfo.style.display = 'flex';
+
+    // Parse the file data based on extension
+    const extension = file.name.split('.').pop().toLowerCase();
+    
+    if (extension === 'csv') {
+      parseCSV(file);
+    } else if (extension === 'xlsx' || extension === 'xls') {
+      parseExcel(file);
+    } else if (extension === 'txt') {
+      parseTXT(file);
+    } else {
+      alert('Định dạng tệp không được hỗ trợ! Vui lòng chọn tệp CSV, Excel hoặc TXT.');
+      resetFileInfo();
+    }
+  };
+
+  // Format File Size helper
+  function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  }
+
+  // ==========================================================================
+  // --- File Parsers (CSV, Excel, TXT) ---
+  // ==========================================================================
+  
+  // CSV Parser via PapaParse
+  function parseCSV(file) {
+    Papa.parse(file, {
+      skipEmptyLines: false, // Keep empty lines so we can filter and log them if configured
+      complete: function(results) {
+        if (results.data && results.data.length > 0) {
+          processRawDataToState(results.data);
+        } else {
+          alert('Tệp CSV không chứa dữ liệu!');
+          resetFileInfo();
+        }
+      },
+      error: function(err) {
+        alert('Lỗi đọc tệp CSV: ' + err.message);
+        resetFileInfo();
+      }
+    });
+  }
+
+  // Excel Parser via SheetJS
+  function parseExcel(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // Grab the first sheet
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // Convert to array of arrays
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+        
+        if (rows && rows.length > 0) {
+          processRawDataToState(rows);
+        } else {
+          alert('Tệp Excel không chứa dữ liệu!');
+          resetFileInfo();
+        }
+      } catch (err) {
+        alert('Lỗi đọc tệp Excel: ' + err.message);
+        resetFileInfo();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // TXT Parser (reads line by line, splits by common delimiters)
+  function parseTXT(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const lines = text.split(/\r?\n/);
+      
+      // Auto-detect delimiter from the first 5 lines (comma, semicolon, tab or pipe)
+      let delimiter = ',';
+      const sampleLines = lines.slice(0, 5).filter(line => line.trim().length > 0);
+      if (sampleLines.length > 0) {
+        const delims = [',', ';', '\t', '|'];
+        const counts = delims.map(d => {
+          return {
+            delim: d,
+            count: sampleLines.reduce((acc, line) => acc + (line.split(d).length - 1), 0)
+          };
+        });
+        // Sort descending
+        counts.sort((a, b) => b.count - a.count);
+        if (counts[0].count > 0) {
+          delimiter = counts[0].delim;
+        }
+      }
+
+      // Convert to array of arrays
+      const rows = lines.map(line => {
+        return line.split(delimiter).map(cell => cell.trim());
+      });
+
+      if (rows && rows.length > 0) {
+        processRawDataToState(rows);
+      } else {
+        alert('Tệp văn bản không chứa dữ liệu!');
+        resetFileInfo();
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Common handler after parsing raw arrays
+  function processRawDataToState(rows) {
+    // Clean up empty outer-bound columns if any
+    const maxCols = Math.max(...rows.map(r => r.length));
+    
+    // Assume the first row containing elements is the header
+    let headerRowIndex = 0;
+    // Find first non-empty row to act as headers
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].some(cell => String(cell).trim() !== '')) {
+        headerRowIndex = i;
+        break;
+      }
+    }
+
+    loadedFileHeaders = rows[headerRowIndex].map((h, index) => {
+      const headerStr = String(h).trim();
+      return headerStr !== '' ? headerStr : `Cột ${index + 1}`;
+    });
+
+    // Save data rows (everything after the header)
+    loadedFileData = rows.slice(headerRowIndex + 1);
+
+    // Populate Column Mapping Selects
+    populateColumnMapping(loadedFileHeaders);
+    
+    columnMappingSection.style.display = 'block';
+    validateProcessButtonState();
+  }
+
+  // Populate mapping selectors
+  function populateColumnMapping(headers) {
+    colMapSelects.forEach(select => {
+      // Clear all options except the first "Skip" option
+      select.innerHTML = '<option value="">-- Không có / Bỏ qua --</option>';
+      
+      headers.forEach((header, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${header} (Cột ${index + 1})`;
+        select.appendChild(option);
+      });
+    });
+
+    // Auto-detect columns based on name matches
+    headers.forEach((header, index) => {
+      const lower = header.toLowerCase();
+      
+      // Auto-detect Name
+      if (lower.includes('ten') || lower.includes('họ') || lower.includes('ho') || lower.includes('name') || lower.includes('khach') || lower.includes('user')) {
+        if (!mapNameCol.value) mapNameCol.value = index;
+      }
+      // Auto-detect Phone
+      if (lower.includes('sdt') || lower.includes('phone') || lower.includes('so dien thoai') || lower.includes('sđt') || lower.includes('tel') || lower.includes('dien thoai') || lower.includes('mobile')) {
+        if (!mapPhoneCol.value) mapPhoneCol.value = index;
+      }
+      // Auto-detect Email
+      if (lower.includes('email') || lower.includes('mail') || lower.includes('thu dien tu')) {
+        if (!mapEmailCol.value) mapEmailCol.value = index;
+      }
+    });
+
+    // Fallback detection if headers didn't match (analyze first row values)
+    if (loadedFileData && loadedFileData.length > 0) {
+      const sampleRow = loadedFileData[0];
+      
+      if (!mapNameCol.value || !mapPhoneCol.value || !mapEmailCol.value) {
+        sampleRow.forEach((val, index) => {
+          const str = String(val).trim();
+          if (str === '') return;
+
+          // Check if looks like Email
+          if (!mapEmailCol.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)) {
+            mapEmailCol.value = index;
+          }
+          // Check if looks like Phone
+          if (!mapPhoneCol.value && /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(str) && str.replace(/[^\d]/g, '').length >= 8) {
+            mapPhoneCol.value = index;
+          }
+        });
+      }
     }
   }
-  
-  if (!animFrameId) {
-    animateConfetti();
+
+  // Validate process button based on loaded content
+  function validateProcessButtonState() {
+    if (activeTab === 'file') {
+      if (loadedFileData && loadedFileData.length > 0) {
+        btnProcess.removeAttribute('disabled');
+      } else {
+        btnProcess.setAttribute('disabled', 'true');
+      }
+    } else {
+      if (rawTextarea.value.trim().length > 0) {
+        btnProcess.removeAttribute('disabled');
+      } else {
+        btnProcess.setAttribute('disabled', 'true');
+      }
+    }
   }
-}
 
-// === 6. RENDER GIAO DIỆN CHÍNH ===
-function getLevelTitle(level) {
-  const index = Math.min(level - 1, LEVEL_TITLES.length - 1);
-  return LEVEL_TITLES[index];
-}
+  // ==========================================================================
+  // --- Core Processing Logic ---
+  // ==========================================================================
+  
+  btnProcess.addEventListener('click', () => {
+    // Show spinner & disable button
+    btnProcess.setAttribute('disabled', 'true');
+    spinner.style.display = 'inline-block';
+    iconSparkles.style.display = 'none';
+    processBtnText.textContent = 'Đang làm sạch dữ liệu...';
 
-function renderDashboard() {
-  // Cập nhật Profile
-  document.getElementById("kidName").textContent = state.kidName;
-  document.getElementById("starCounter").textContent = state.stars;
-  document.getElementById("streakCounter").textContent = state.streak;
-  document.getElementById("currentAvatar").innerHTML = AVATARS[state.avatar] || AVATARS.cat;
-  
-  // Hiển thị ngày hôm nay
-  const options = { weekday: 'long', day: 'numeric', month: 'numeric' };
-  document.getElementById("dateDisplay").textContent = new Date().toLocaleDateString('vi-VN', options);
-
-  // Tính toán cấp độ & tiến độ thăng cấp
-  // Cứ 100 sao tăng 1 level. Sao lẻ là tiến độ thanh progress bar.
-  const currentLevel = Math.floor(state.stars / 100) + 1;
-  const currentLevelStars = state.stars % 100;
-  const progressPercent = currentLevelStars; // Vì max 100 sao nên % chính bằng số sao lẻ
-  
-  document.getElementById("levelNumber").textContent = currentLevel;
-  document.getElementById("levelTitle").textContent = getLevelTitle(currentLevel);
-  document.getElementById("levelProgressBar").style.width = `${progressPercent}%`;
-  document.getElementById("starsNeeded").textContent = 100 - currentLevelStars;
-  
-  if (currentLevel !== state.level) {
-    // Nếu bé lên cấp!
-    state.level = currentLevel;
-    playSynthesizedSound("levelup");
-    triggerConfetti(80, true);
+    // Small delay to let the UI update and draw the loader
     setTimeout(() => {
-      alert(`🎉 CHÚC MỪNG CON! Con đã đạt cấp độ mới: Cấp ${currentLevel} - Danh hiệu "${getLevelTitle(currentLevel)}"! Con giỏi quá! 🥳`);
-    }, 500);
-    saveState();
+      try {
+        executeCleaning();
+      } catch (err) {
+        console.error(err);
+        alert('Đã xảy ra lỗi trong quá trình xử lý: ' + err.message);
+      } finally {
+        // Reset process button state
+        btnProcess.removeAttribute('disabled');
+        spinner.style.display = 'none';
+        iconSparkles.style.display = 'inline-block';
+        processBtnText.textContent = 'Bắt đầu làm sạch dữ liệu';
+      }
+    }, 100);
+  });
+
+  // Remove accents function for Vietnamese text
+  function removeAccents(str) {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D');
   }
 
-  // Render danh sách thói quen tốt
-  const habitsGrid = document.getElementById("habitsGrid");
-  habitsGrid.innerHTML = "";
-  
-  state.habits.forEach(habit => {
-    const card = document.createElement("div");
-    card.className = `habit-card ${habit.completed ? 'completed' : ''}`;
-    card.onclick = () => toggleHabit(habit.id);
+  // Capitalize name function (Nguyen Van A -> Nguyen Van A)
+  function capitalizeName(str) {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .filter(w => w.length > 0)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  // Standardize and Convert VN phone carrier prefixes
+  function processPhone(val, convertPrefix, outputFormat, digitsOnly, validate) {
+    if (!val) return { phone: '', logs: [], isValid: false };
     
-    card.innerHTML = `
-      <div class="habit-icon-wrapper">${habit.icon}</div>
-      <div class="habit-info">
-        <span class="habit-title">${habit.name}</span>
-        <span class="habit-reward">+${habit.stars} ⭐</span>
-      </div>
-      <div class="checkbox-container"></div>
-    `;
+    let raw = String(val).trim();
+    let original = raw;
+    let logs = [];
     
-    habitsGrid.appendChild(card);
-  });
-
-  // Render danh sách quà tặng đổi sao
-  const rewardsGrid = document.getElementById("rewardsGrid");
-  rewardsGrid.innerHTML = "";
-  
-  state.rewards.forEach(reward => {
-    const card = document.createElement("div");
-    card.className = "reward-card";
-    
-    const canRedeem = state.stars >= reward.stars;
-    const progress = Math.min((state.stars / reward.stars) * 100, 100);
-    
-    card.innerHTML = `
-      <div class="reward-icon-wrapper">${reward.icon}</div>
-      <div class="reward-info">
-        <span class="reward-title">${reward.name}</span>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
-          <span class="reward-cost">${reward.stars} ⭐</span>
-          <div class="reward-progress-bg">
-            <div class="reward-progress-bar" style="width: ${progress}%"></div>
-          </div>
-        </div>
-      </div>
-      <button class="btn-redeem" ${canRedeem ? '' : 'disabled'} onclick="redeemReward('${reward.id}')">
-        ${canRedeem ? 'Đổi Quà' : 'Chưa đủ'}
-      </button>
-    `;
-    
-    rewardsGrid.appendChild(card);
-  });
-}
-
-// Hàm hoàn thành/Hủy thói quen
-function toggleHabit(id) {
-  const habit = state.habits.find(h => h.id === id);
-  if (!habit) return;
-  
-  habit.completed = !habit.completed;
-  
-  if (habit.completed) {
-    state.stars += habit.stars;
-    // Tăng streak khi bé làm việc đầu tiên trong ngày
-    const activeHabitsToday = state.habits.filter(h => h.completed).length;
-    if (activeHabitsToday === 1) {
-      state.streak += 1;
-    }
-    playSynthesizedSound("chime");
-    triggerConfetti(35);
-  } else {
-    state.stars = Math.max(0, state.stars - habit.stars);
-    // Giảm streak nếu hủy hết việc trong ngày
-    const activeHabitsToday = state.habits.filter(h => h.completed).length;
-    if (activeHabitsToday === 0) {
-      state.streak = Math.max(0, state.streak - 1);
-    }
-    playSynthesizedSound("undo");
-  }
-  
-  saveState();
-  renderDashboard();
-}
-
-// Hàm đổi quà
-function redeemReward(id) {
-  const reward = state.rewards.find(r => r.id === id);
-  if (!reward || state.stars < reward.stars) return;
-  
-  // Xác nhận đổi quà (đảm bảo trẻ em và cha mẹ cùng xác nhận)
-  const confirmRedeem = confirm(`Bé muốn đổi ${reward.stars} sao lấy phần thưởng: "${reward.name}" chứ? Hãy nhờ bố mẹ xác nhận cùng nhé!`);
-  
-  if (confirmRedeem) {
-    state.stars -= reward.stars;
-    playSynthesizedSound("levelup");
-    triggerConfetti(60, true);
-    alert(`🎉 Bé đã đổi quà thành công! Hãy đưa màn hình này cho bố mẹ để nhận phần quà nhé: "${reward.name}"`);
-    saveState();
-    renderDashboard();
-  }
-}
-
-// === 7. CHỨC NĂNG THAY ĐỔI AVATAR ===
-const modalAvatar = document.getElementById("modalAvatar");
-
-document.getElementById("btnChangeAvatar").onclick = () => {
-  const grid = document.getElementById("avatarSelectionGrid");
-  grid.innerHTML = "";
-  
-  Object.keys(AVATARS).forEach(key => {
-    const item = document.createElement("div");
-    item.className = `avatar-option ${state.avatar === key ? 'selected' : ''}`;
-    item.innerHTML = AVATARS[key];
-    item.onclick = () => {
-      state.avatar = key;
-      saveState();
-      renderDashboard();
-      modalAvatar.style.display = "none";
-    };
-    grid.appendChild(item);
-  });
-  
-  modalAvatar.style.display = "flex";
-};
-
-document.getElementById("btnCloseAvatar").onclick = () => {
-  modalAvatar.style.display = "none";
-};
-
-// === 8. GÓC CHA MẸ (BẢO MẬT & CÀI ĐẶT) ===
-const modalSecurity = document.getElementById("modalSecurity");
-const modalParentArea = document.getElementById("modalParentArea");
-let currentSecurityAnswer = 0;
-
-// Mở khung giải toán để vào cài đặt
-document.getElementById("btnParentArea").onclick = () => {
-  // Tạo câu hỏi toán ngẫu nhiên đơn giản
-  const num1 = Math.floor(Math.random() * 8) + 2; // 2 -> 9
-  const num2 = Math.floor(Math.random() * 8) + 2; // 2 -> 9
-  currentSecurityAnswer = num1 + num2;
-  
-  document.getElementById("mathChallenge").textContent = `${num1} + ${num2} = ?`;
-  document.getElementById("securityAnswer").value = "";
-  modalSecurity.style.display = "flex";
-};
-
-// Đóng khung bảo mật
-document.getElementById("btnCloseSecurity").onclick = () => {
-  modalSecurity.style.display = "none";
-};
-
-// Xác nhận giải toán
-document.getElementById("securityForm").onsubmit = () => {
-  const ans = parseInt(document.getElementById("securityAnswer").value);
-  if (ans === currentSecurityAnswer) {
-    modalSecurity.style.display = "none";
-    openParentArea();
-  } else {
-    alert("Sai rồi ạ! Phép tính này chỉ dành cho bố mẹ thôi nha.");
-    document.getElementById("securityAnswer").value = "";
-  }
-};
-
-// Đóng Góc Cha Mẹ
-document.getElementById("btnCloseParentArea").onclick = () => {
-  modalParentArea.style.display = "none";
-};
-
-// Điều hướng Tab trong Góc Cha Mẹ
-const tabs = document.querySelectorAll(".tab-btn");
-const tabPanes = document.querySelectorAll(".tab-pane");
-
-tabs.forEach(tab => {
-  tab.onclick = () => {
-    tabs.forEach(t => t.classList.remove("active"));
-    tabPanes.forEach(p => p.classList.remove("active"));
-    
-    tab.classList.add("active");
-    const paneId = tab.getAttribute("data-tab");
-    document.getElementById(paneId).classList.add("active");
-  };
-});
-
-// Mở Góc Cha Mẹ: Load dữ liệu quản lý
-function openParentArea() {
-  modalParentArea.style.display = "flex";
-  
-  // Render bộ chọn Icon thói quen
-  const iconSelector = document.getElementById("iconSelector");
-  iconSelector.innerHTML = "";
-  HABIT_ICONS.forEach(icon => {
-    const opt = document.createElement("div");
-    opt.className = "icon-option";
-    opt.textContent = icon;
-    opt.onclick = () => {
-      document.querySelectorAll("#iconSelector .icon-option").forEach(o => o.classList.remove("selected"));
-      opt.classList.add("selected");
-      document.getElementById("habitIconInput").value = icon;
-    };
-    iconSelector.appendChild(opt);
-  });
-  // Chọn icon đầu tiên làm mặc định
-  iconSelector.children[0].click();
-
-  // Render bộ chọn Icon phần thưởng
-  const rewardIconSelector = document.getElementById("rewardIconSelector");
-  rewardIconSelector.innerHTML = "";
-  REWARD_ICONS.forEach(icon => {
-    const opt = document.createElement("div");
-    opt.className = "icon-option";
-    opt.textContent = icon;
-    opt.onclick = () => {
-      document.querySelectorAll("#rewardIconSelector .icon-option").forEach(o => o.classList.remove("selected"));
-      opt.classList.add("selected");
-      document.getElementById("rewardIconInput").value = icon;
-    };
-    rewardIconSelector.appendChild(opt);
-  });
-  // Chọn icon đầu tiên làm mặc định
-  rewardIconSelector.children[0].click();
-
-  // Tên bé & Âm thanh trong tab Thiết Lập
-  document.getElementById("kidNameInput").value = state.kidName;
-  document.getElementById("soundToggle").checked = state.soundEnabled;
-
-  renderAdminLists();
-}
-
-// Render danh sách quản lý (Thêm/Xóa)
-function renderAdminLists() {
-  // Danh sách thói quen quản lý
-  const adminHabitsList = document.getElementById("adminHabitsList");
-  adminHabitsList.innerHTML = "";
-  state.habits.forEach(habit => {
-    const item = document.createElement("div");
-    item.className = "admin-list-item";
-    item.innerHTML = `
-      <div class="admin-item-info">
-        <span>${habit.icon}</span>
-        <span>${habit.name} (+${habit.stars}⭐)</span>
-      </div>
-      <button class="btn-delete-item" onclick="deleteHabit('${habit.id}')" title="Xóa thói quen">🗑️</button>
-    `;
-    adminHabitsList.appendChild(item);
-  });
-
-  // Danh sách quà quản lý
-  const adminRewardsList = document.getElementById("adminRewardsList");
-  adminRewardsList.innerHTML = "";
-  state.rewards.forEach(reward => {
-    const item = document.createElement("div");
-    item.className = "admin-list-item";
-    item.innerHTML = `
-      <div class="admin-item-info">
-        <span>${reward.icon}</span>
-        <span>${reward.name} (-${reward.stars}⭐)</span>
-      </div>
-      <button class="btn-delete-item" onclick="deleteReward('${reward.id}')" title="Xóa quà tặng">🗑️</button>
-    `;
-    adminRewardsList.appendChild(item);
-  });
-}
-
-// Xử lý thêm thói quen mới
-document.getElementById("formAddHabit").onsubmit = (e) => {
-  e.preventDefault();
-  const name = document.getElementById("habitNameInput").value.trim();
-  const stars = parseInt(document.getElementById("habitStarsInput").value);
-  const icon = document.getElementById("habitIconInput").value;
-  
-  if (!name) return;
-  
-  const newHabit = {
-    id: "habit_" + Date.now(),
-    name: name,
-    stars: stars,
-    icon: icon,
-    completed: false
-  };
-  
-  state.habits.push(newHabit);
-  saveState();
-  renderDashboard();
-  renderAdminLists();
-  
-  // Reset form
-  document.getElementById("habitNameInput").value = "";
-  document.getElementById("habitStarsInput").value = "10";
-};
-
-// Xóa thói quen
-window.deleteHabit = function(id) {
-  if (confirm("Cha mẹ chắc chắn muốn xóa thói quen này chứ?")) {
-    state.habits = state.habits.filter(h => h.id !== id);
-    saveState();
-    renderDashboard();
-    renderAdminLists();
-  }
-};
-
-// Xử lý thêm phần thưởng mới
-document.getElementById("formAddReward").onsubmit = (e) => {
-  e.preventDefault();
-  const name = document.getElementById("rewardNameInput").value.trim();
-  const stars = parseInt(document.getElementById("rewardStarsInput").value);
-  const icon = document.getElementById("rewardIconInput").value;
-  
-  if (!name) return;
-  
-  const newReward = {
-    id: "reward_" + Date.now(),
-    name: name,
-    stars: stars,
-    icon: icon
-  };
-  
-  state.rewards.push(newReward);
-  saveState();
-  renderDashboard();
-  renderAdminLists();
-  
-  // Reset form
-  document.getElementById("rewardNameInput").value = "";
-  document.getElementById("rewardStarsInput").value = "100";
-};
-
-// Xóa quà
-window.deleteReward = function(id) {
-  if (confirm("Cha mẹ chắc chắn muốn xóa phần thưởng này chứ?")) {
-    state.rewards = state.rewards.filter(r => r.id !== id);
-    saveState();
-    renderDashboard();
-    renderAdminLists();
-  }
-};
-
-// Thiết lập: Đổi tên bé
-document.getElementById("kidNameInput").oninput = (e) => {
-  state.kidName = e.target.value.trim() || "Bé Ngoan";
-  saveState();
-  renderDashboard();
-};
-
-// Thiết lập: Bật/Tắt âm thanh
-document.getElementById("soundToggle").onchange = (e) => {
-  state.soundEnabled = e.target.checked;
-  saveState();
-};
-
-// Thiết lập: Đặt lại Sao về 0
-document.getElementById("btnResetStars").onclick = () => {
-  if (confirm("⚠️ Cha mẹ có chắc chắn muốn ĐẶT LẠI số sao tích lũy và cấp độ của bé về 0? Tất cả nỗ lực sẽ làm lại từ đầu.")) {
-    state.stars = 0;
-    state.level = 1;
-    state.streak = 0;
-    state.habits.forEach(h => h.completed = false);
-    saveState();
-    renderDashboard();
-    alert("Đã đặt lại dữ liệu tiến độ về 0!");
-  }
-};
-
-// Thiết lập: Cài đặt lại mặc định (Reset All)
-document.getElementById("btnResetAll").onclick = () => {
-  if (confirm("🚨 CHÚ Ý NGUY HIỂM! Hành động này sẽ xóa hoàn toàn tất cả thói quen tự tạo, phần thưởng tự tạo, và đưa toàn bộ ứng dụng về trạng thái mới ban đầu. Cha mẹ chắc chắn chứ?")) {
-    localStorage.removeItem("be_ngoan_state");
-    state = {
-      kidName: "Bé Ngoan",
-      stars: 0,
-      level: 1,
-      avatar: "cat",
-      streak: 0,
-      lastOpenDate: "",
-      soundEnabled: true,
-      habits: [...DEFAULT_HABITS],
-      rewards: [...DEFAULT_REWARDS]
-    };
-    saveState();
-    renderDashboard();
-    modalParentArea.style.display = "none";
-    alert("Đã cài đặt lại toàn bộ ứng dụng về mặc định!");
-  }
-};
-
-// === 9. LIÊN KẾT ĐÓNG MODAL KHI CLICK RA NGOÀI ===
-window.onclick = (event) => {
-  if (event.target === modalSecurity) {
-    modalSecurity.style.display = "none";
-  } else if (event.target === modalParentArea) {
-    modalParentArea.style.display = "none";
-  } else if (event.target === modalAvatar) {
-    modalAvatar.style.display = "none";
-  }
-};
-
-// === 10. HỖ TRỢ CÀI ĐẶT PWA OFFLINE (ADD TO HOME SCREEN) ===
-let deferredPrompt;
-const installBanner = document.getElementById("installBanner");
-const btnInstallApp = document.getElementById("btnInstallApp");
-const installInstructions = document.getElementById("installInstructions");
-
-// Bắt sự kiện đề xuất cài đặt của Chrome/Android/Windows
-window.addEventListener("beforeinstallprompt", (e) => {
-  // Ngăn chặn trình duyệt tự động hiển thị hộp thoại
-  e.preventDefault();
-  // Lưu sự kiện để kích hoạt sau
-  deferredPrompt = e;
-  
-  // Hiển thị banner cài đặt tùy chỉnh
-  installBanner.style.display = "flex";
-  btnInstallApp.style.style = "block";
-  btnInstallApp.style.display = "block";
-  installInstructions.innerHTML = "Nhấn nút <strong>'Cài Đặt Ngay'</strong> bên dưới để ghim biểu tượng trò chơi ra màn hình chính, khởi chạy mượt mà giống như một ứng dụng tải từ App Store.";
-});
-
-btnInstallApp.onclick = () => {
-  if (!deferredPrompt) return;
-  
-  // Hiển thị hộp thoại cài đặt của trình duyệt
-  deferredPrompt.prompt();
-  
-  // Chờ người dùng phản hồi
-  deferredPrompt.userChoice.then((choiceResult) => {
-    if (choiceResult.outcome === "accepted") {
-      console.log("Người dùng chấp nhận cài đặt ứng dụng PWA");
-      installBanner.style.display = "none";
+    // 1. Remove non-digits if enabled (keep '+' at first position just in case)
+    let cleaned = '';
+    if (digitsOnly) {
+      const startsWithPlus = raw.startsWith('+');
+      cleaned = raw.replace(/[^\d]/g, '');
+      if (startsWithPlus && !cleaned.startsWith('+')) {
+        cleaned = '+' + cleaned;
+      }
+      if (cleaned !== original) {
+        logs.push(`Loại bỏ ký tự đặc biệt khỏi SĐT: "${original}" -> "${cleaned}"`);
+      }
     } else {
-      console.log("Người dùng từ chối cài đặt ứng dụng PWA");
+      cleaned = raw.replace(/\s+/g, ''); // just strip spacing
     }
-    deferredPrompt = null;
-  });
-};
 
-// Phát hiện hệ điều hành iOS (Safari không có beforeinstallprompt)
-function isIOS() {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-}
+    // Standardize representation to simple digit string with leading country indicator or 0
+    let temp = cleaned;
+    let hasPlus = temp.startsWith('+');
+    let numberPart = temp.replace(/^\+/, '');
 
-function isStandalone() {
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-}
+    // Convert +84 or 84 to 0 for standard prefix translation
+    let standard0 = '';
+    if (hasPlus && numberPart.startsWith('84')) {
+      standard0 = '0' + numberPart.slice(2);
+    } else if (numberPart.startsWith('84') && numberPart.length > 9) {
+      standard0 = '0' + numberPart.slice(2);
+    } else if (numberPart.startsWith('0')) {
+      standard0 = numberPart;
+    } else if (numberPart.length === 9) {
+      // Missing leading zero, likely standard 9 digit mobil
+      standard0 = '0' + numberPart;
+      logs.push(`Thêm số 0 vào trước SĐT thiếu: "${cleaned}" -> "${standard0}"`);
+    } else {
+      standard0 = temp; // fallback
+    }
 
-// Xử lý hiển thị hướng dẫn cài đặt trên iOS Safari
-if (isIOS() && !isStandalone()) {
-  installBanner.style.display = "flex";
-  btnInstallApp.style.display = "none";
-  installInstructions.innerHTML = "Bé hoặc cha mẹ hãy nhấn nút <strong>Chia sẻ 📤</strong> ở thanh công cụ Safari của iPhone/iPad, sau đó kéo xuống chọn <strong>'Thêm vào MH chính' ➕</strong> (Add to Home Screen) để cài biểu tượng trò chơi nhé!";
-}
+    // 2. Convert old VN carrier prefix (11 digits to 10 digits)
+    let converted = standard0;
+    if (convertPrefix && standard0.startsWith('0') && standard0.length === 11) {
+      const prefix4 = standard0.substring(0, 4);
+      if (vnPhonePrefixMap[prefix4]) {
+        converted = vnPhonePrefixMap[prefix4] + standard0.substring(4);
+        logs.push(`Chuyển đổi đầu số cũ VN: "${standard0}" -> "${converted}"`);
+      }
+    }
 
-// Nút đóng banner
-document.getElementById("btnCloseBanner").onclick = () => {
-  installBanner.style.display = "none";
-};
+    // 3. Apply Output Formatting (prefix_0, prefix_84, prefix_plus84)
+    let formatted = converted;
+    if (rulePhoneCountryCode.checked && converted.startsWith('0') && converted.length === 10) {
+      if (outputFormat === 'prefix_84') {
+        formatted = '84' + converted.slice(1);
+      } else if (outputFormat === 'prefix_plus84') {
+        formatted = '+84' + converted.slice(1);
+      } else {
+        formatted = converted;
+      }
+    }
 
-// Đăng ký Service Worker để chạy offline
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(reg => {
-        console.log("Service Worker đăng ký thành công với scope: ", reg.scope);
-      })
-      .catch(err => {
-        console.error("Service Worker đăng ký thất bại: ", err);
+    // 4. Validate Phone structure
+    let isValid = true;
+    if (validate) {
+      // Validate based on standardized 10-digit number starting with 0
+      const stdNoCountry = converted.startsWith('0') ? converted : ('0' + converted.replace(/^\+84|^84/, '1').slice(1));
+      
+      // VN mobile numbers always start with 03, 05, 07, 08, 09 and have exactly 10 digits
+      const isMobileVN = /^0[35789]\d{8}$/.test(converted);
+      
+      if (converted.length !== 10 || !isMobileVN) {
+        isValid = false;
+        logs.push(`Số điện thoại không hợp lệ (độ dài/đầu số sai): "${original}"`);
+      }
+    }
+
+    return { phone: formatted, logs, isValid };
+  }
+
+  // Email validation and cleaning
+  function processEmail(val, lowercase, validate, filterDisposable) {
+    if (!val) return { email: '', logs: [], isValid: false };
+    
+    let raw = String(val).trim();
+    let original = raw;
+    let logs = [];
+    let isValid = true;
+
+    // 1. Lowercase
+    let cleaned = lowercase ? raw.toLowerCase() : raw;
+    if (cleaned !== original) {
+      logs.push(`Chuyển Email thành chữ thường: "${original}" -> "${cleaned}"`);
+    }
+
+    // 2. Validate format
+    if (validate) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(cleaned)) {
+        isValid = false;
+        logs.push(`Email sai định dạng: "${original}"`);
+        return { email: cleaned, logs, isValid };
+      }
+    }
+
+    // 3. Filter disposable email
+    if (filterDisposable) {
+      const parts = cleaned.split('@');
+      const domain = parts[parts.length - 1];
+      if (disposableEmailDomains.has(domain)) {
+        isValid = false;
+        logs.push(`Phát hiện email ảo/rác: "${original}"`);
+      }
+    }
+
+    return { email: cleaned, logs, isValid };
+  }
+
+  // Main process execution
+  function executeCleaning() {
+    let rowsToProcess = [];
+    let headers = [];
+
+    // Reset results variables
+    cleanedData = [];
+    
+    let countTotal = 0;
+    let countValid = 0;
+    let countFixed = 0;
+    let countInvalid = 0;
+    let countDups = 0;
+
+    let indexNameCol = -1;
+    let indexPhoneCol = -1;
+    let indexEmailCol = -1;
+
+    let systemLogs = [];
+
+    // --- Prepare Input ---
+    if (activeTab === 'file') {
+      rowsToProcess = JSON.parse(JSON.stringify(loadedFileData)); // Deep copy loaded array of arrays
+      headers = [...loadedFileHeaders];
+      
+      indexNameCol = mapNameCol.value !== "" ? parseInt(mapNameCol.value) : -1;
+      indexPhoneCol = mapPhoneCol.value !== "" ? parseInt(mapPhoneCol.value) : -1;
+      indexEmailCol = mapEmailCol.value !== "" ? parseInt(mapEmailCol.value) : -1;
+    } else {
+      // Parse raw text
+      const rawText = rawTextarea.value.trim();
+      const lines = rawText.split(/\r?\n/);
+      
+      if (lines.length === 0) return;
+
+      // Detect delimiter
+      let delimiter = ',';
+      const sampleLines = lines.slice(0, 3).filter(line => line.trim().length > 0);
+      if (sampleLines.length > 0) {
+        const delims = [',', ';', '\t', '|'];
+        const counts = delims.map(d => {
+          return {
+            delim: d,
+            count: sampleLines.reduce((acc, line) => acc + (line.split(d).length - 1), 0)
+          };
+        });
+        counts.sort((a, b) => b.count - a.count);
+        if (counts[0].count > 0) delimiter = counts[0].delim;
+      }
+
+      // Convert lines to array of arrays
+      const allRows = lines.map(line => line.split(delimiter).map(cell => cell.trim()));
+      
+      // Auto headers detect for manual pasting: check if first row contains headers
+      let hasHeader = false;
+      const firstRow = allRows[0];
+      const isHeader = firstRow.some(cell => {
+        const c = cell.toLowerCase();
+        return c.includes('tên') || c.includes('ho') || c.includes('name') || c.includes('sđt') || c.includes('phone') || c.includes('email') || c.includes('sdt');
       });
-  });
-}
 
-// === 11. KHỞI CHẠY LẦN ĐẦU TIÊN ===
-loadState();
-renderDashboard();
+      if (isHeader) {
+        headers = firstRow.map((h, i) => h !== '' ? h : `Cột ${i + 1}`);
+        rowsToProcess = allRows.slice(1);
+        hasHeader = true;
+      } else {
+        // Create virtual headers
+        const maxCols = Math.max(...allRows.map(r => r.length));
+        headers = [];
+        for (let i = 0; i < maxCols; i++) {
+          headers.push(`Cột ${i + 1}`);
+        }
+        rowsToProcess = allRows;
+      }
+
+      // Auto-map columns for raw text
+      headers.forEach((h, index) => {
+        const lower = h.toLowerCase();
+        if (lower.includes('ten') || lower.includes('họ') || lower.includes('ho') || lower.includes('name')) {
+          indexNameCol = index;
+        } else if (lower.includes('sdt') || lower.includes('phone') || lower.includes('sđt') || lower.includes('tel')) {
+          indexPhoneCol = index;
+        } else if (lower.includes('email') || lower.includes('mail')) {
+          indexEmailCol = index;
+        }
+      });
+
+      // If no mapping matched by name, do simple index based assignment (0=Name, 1=Phone, 2=Email)
+      if (indexNameCol === -1 && indexPhoneCol === -1 && indexEmailCol === -1) {
+        if (headers.length >= 1) indexNameCol = 0;
+        if (headers.length >= 2) indexPhoneCol = 1;
+        if (headers.length >= 3) indexEmailCol = 2;
+      }
+    }
+
+    countTotal = rowsToProcess.length;
+
+    // Sets to track duplicates
+    const seenEmails = new Set();
+    const seenPhones = new Set();
+    const seenFullRows = new Set();
+
+    // Loop through all data rows
+    const processedRows = [];
+
+    rowsToProcess.forEach((row, rowIndex) => {
+      const displayRowNo = rowIndex + 1;
+      
+      // 0. Check if row is completely empty
+      const isRowEmpty = row.every(cell => String(cell).trim() === '');
+      if (isRowEmpty) {
+        if (ruleRemoveEmpty.checked) {
+          countInvalid++;
+          systemLogs.push({ type: 'error', text: `Dòng ${displayRowNo}: Đã loại bỏ vì dòng trống.` });
+          return; // Skip empty row
+        }
+        processedRows.push(row); // Keep empty if not filtering
+        return;
+      }
+
+      let rowHasChanged = false;
+      let rowHasError = false;
+      
+      let cleanRow = [...row]; // Copy original cells
+
+      // --- Clean Name ---
+      if (indexNameCol !== -1 && indexNameCol < row.length) {
+        let nameVal = String(row[indexNameCol]);
+        let originalName = nameVal;
+        
+        if (nameVal.trim() !== "") {
+          let tempName = nameVal;
+          if (ruleNameTrim.checked) {
+            tempName = tempName.replace(/\s+/g, ' ').trim();
+          }
+          if (ruleNameCapitalize.checked) {
+            tempName = capitalizeName(tempName);
+          }
+          if (ruleNameNoAccents.checked) {
+            tempName = removeAccents(tempName);
+          }
+          
+          if (tempName !== originalName) {
+            cleanRow[indexNameCol] = tempName;
+            rowHasChanged = true;
+            systemLogs.push({
+              type: 'info',
+              text: `Dòng ${displayRowNo}: Chuẩn hóa tên "${originalName}" -> "${tempName}"`
+            });
+          }
+        }
+      }
+
+      // --- Clean Phone ---
+      if (indexPhoneCol !== -1 && indexPhoneCol < row.length) {
+        let phoneVal = String(row[indexPhoneCol]);
+        if (phoneVal.trim() !== "") {
+          const resPhone = processPhone(
+            phoneVal, 
+            rulePhoneConvertOldPrefix.checked, 
+            phoneFormat.value, 
+            rulePhoneDigitsOnly.checked, 
+            rulePhoneValidate.checked
+          );
+
+          // Append sub logs
+          resPhone.logs.forEach(logText => {
+            systemLogs.push({ type: resPhone.isValid ? 'info' : 'error', text: `Dòng ${displayRowNo}: ${logText}` });
+          });
+
+          if (!resPhone.isValid && rulePhoneValidate.checked) {
+            countInvalid++;
+            rowHasError = true;
+            return; // Filter out this row completely
+          }
+
+          if (resPhone.phone !== phoneVal) {
+            cleanRow[indexPhoneCol] = resPhone.phone;
+            rowHasChanged = true;
+          }
+        }
+      }
+
+      // --- Clean Email ---
+      if (indexEmailCol !== -1 && indexEmailCol < row.length) {
+        let emailVal = String(row[indexEmailCol]);
+        if (emailVal.trim() !== "") {
+          const resEmail = processEmail(
+            emailVal,
+            ruleEmailLowercase.checked,
+            ruleEmailValidate.checked,
+            ruleEmailFilterDisposable.checked
+          );
+
+          // Append sub logs
+          resEmail.logs.forEach(logText => {
+            systemLogs.push({ type: resEmail.isValid ? 'info' : 'error', text: `Dòng ${displayRowNo}: ${logText}` });
+          });
+
+          if (!resEmail.isValid && (ruleEmailValidate.checked || ruleEmailFilterDisposable.checked)) {
+            countInvalid++;
+            rowHasError = true;
+            return; // Filter out this row completely
+          }
+
+          if (resEmail.email !== emailVal) {
+            cleanRow[indexEmailCol] = resEmail.email;
+            rowHasChanged = true;
+          }
+        }
+      }
+
+      // --- Check Deduplication ---
+      if (ruleDeduplicate.checked) {
+        let isDuplicate = false;
+        let dupValue = '';
+
+        const currentEmail = indexEmailCol !== -1 ? String(cleanRow[indexEmailCol]).trim().toLowerCase() : '';
+        const currentPhone = indexPhoneCol !== -1 ? String(cleanRow[indexPhoneCol]).trim() : '';
+        const fullRowString = cleanRow.join('|').toLowerCase();
+
+        const criteria = dedupCriteria.value;
+
+        if (criteria === 'email' && currentEmail !== '') {
+          if (seenEmails.has(currentEmail)) {
+            isDuplicate = true;
+            dupValue = `Email "${currentEmail}"`;
+          } else {
+            seenEmails.add(currentEmail);
+          }
+        } else if (criteria === 'phone' && currentPhone !== '') {
+          if (seenPhones.has(currentPhone)) {
+            isDuplicate = true;
+            dupValue = `SĐT "${currentPhone}"`;
+          } else {
+            seenPhones.add(currentPhone);
+          }
+        } else if (criteria === 'any') {
+          let dupMsg = [];
+          if (currentEmail !== '' && seenEmails.has(currentEmail)) {
+            isDuplicate = true;
+            dupMsg.push(`Email "${currentEmail}"`);
+          }
+          if (currentPhone !== '' && seenPhones.has(currentPhone)) {
+            isDuplicate = true;
+            dupMsg.push(`SĐT "${currentPhone}"`);
+          }
+          
+          if (isDuplicate) {
+            dupValue = dupMsg.join(' & ');
+          } else {
+            if (currentEmail !== '') seenEmails.add(currentEmail);
+            if (currentPhone !== '') seenPhones.add(currentPhone);
+          }
+        } else if (criteria === 'all') {
+          if (seenFullRows.has(fullRowString)) {
+            isDuplicate = true;
+            dupValue = "Toàn bộ dòng trùng khớp";
+          } else {
+            seenFullRows.add(fullRowString);
+          }
+        }
+
+        if (isDuplicate) {
+          countDups++;
+          systemLogs.push({
+            type: 'warning',
+            text: `Dòng ${displayRowNo}: Đã loại bỏ trùng lặp (${dupValue}).`
+          });
+          return; // Skip duplicate row
+        }
+      }
+
+      // Track statistics
+      if (rowHasChanged) {
+        countFixed++;
+      } else {
+        countValid++;
+      }
+
+      processedRows.push(cleanRow);
+    });
+
+    // Save outputs
+    cleanedData = [headers, ...processedRows];
+
+    // --- Render Statistics Dashboard ---
+    statTotalRows.textContent = countTotal;
+    statValidRows.textContent = processedRows.length - countFixed; // true clean inputs
+    statFixedRows.textContent = countFixed;
+    statInvalidRows.textContent = countInvalid;
+    statDupsRemoved.textContent = countDups;
+
+    // Percentage of clean data
+    const totalProcessedOutputs = processedRows.length;
+    const cleanPercentage = countTotal > 0 ? Math.round(((countTotal - countInvalid - countDups) / countTotal) * 100) : 0;
+    
+    chartPercentage.textContent = `${cleanPercentage}%`;
+    pctClean.textContent = `${cleanPercentage}%`;
+    pctDirty.textContent = `${100 - cleanPercentage}%`;
+
+    // Radial Progress animation
+    const circleDashOffset = 100 - cleanPercentage;
+    chartCircleProgress.style.strokeDasharray = `${cleanPercentage}, 100`;
+
+    // --- Render Detailed Log messages ---
+    logsContainer.innerHTML = '';
+    if (systemLogs.length === 0) {
+      logsContainer.innerHTML = '<p class="empty-logs">Không phát hiện lỗi dữ liệu cần sửa hoặc lọc bỏ.</p>';
+    } else {
+      systemLogs.forEach(log => {
+        const logEl = document.createElement('div');
+        logEl.className = `log-item ${log.type}`;
+        logEl.textContent = log.text;
+        logsContainer.appendChild(logEl);
+      });
+    }
+
+    // --- Render Table Preview ---
+    previewTableBody.innerHTML = '';
+    
+    // Set headers
+    const previewTable = document.getElementById('previewTable');
+    const thead = previewTable.querySelector('thead tr');
+    thead.innerHTML = '<th>STT</th>';
+    
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      thead.appendChild(th);
+    });
+
+    // Populate preview rows (max 50)
+    const previewRows = processedRows.slice(0, 50);
+    if (previewRows.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = headers.length + 1;
+      td.textContent = 'Không có dữ liệu sạch nào để hiển thị.';
+      td.style.textAlign = 'center';
+      td.style.padding = '30px';
+      tr.appendChild(td);
+      previewTableBody.appendChild(tr);
+    } else {
+      previewRows.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        
+        // STT column
+        const tdIdx = document.createElement('td');
+        tdIdx.textContent = idx + 1;
+        tr.appendChild(tdIdx);
+        
+        // Other columns
+        headers.forEach((h, colIdx) => {
+          const td = document.createElement('td');
+          const originalRow = rowsToProcess[idx];
+          
+          let cleanVal = row[colIdx] !== undefined ? String(row[colIdx]) : '';
+          let originalVal = (originalRow && originalRow[colIdx] !== undefined) ? String(originalRow[colIdx]) : '';
+          
+          if (cleanVal !== originalVal && (colIdx === indexNameCol || colIdx === indexPhoneCol || colIdx === indexEmailCol)) {
+            td.innerHTML = `<span class="diff-highlight" title="Trước: ${originalVal}">${cleanVal}</span>`;
+          } else {
+            td.textContent = cleanVal;
+          }
+          tr.appendChild(td);
+        });
+        
+        previewTableBody.appendChild(tr);
+      });
+    }
+
+    // Slide open dashboard
+    resultsDashboard.style.display = 'block';
+    resultsDashboard.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ==========================================================================
+  // --- Exporters (CSV & Excel) ---
+  // ==========================================================================
+  
+  // CSV Downloader
+  btnExportCSV.addEventListener('click', () => {
+    if (cleanedData.length === 0) return;
+    
+    const csvContent = Papa.unparse(cleanedData);
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' }); // Add BOM for excel Vietnamese accent support
+    
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    
+    // Create clean file name
+    let exportName = 'data_cleaned.csv';
+    if (currentFileName) {
+      const parts = currentFileName.split('.');
+      parts.pop();
+      exportName = parts.join('.') + '_cleaned.csv';
+    }
+    
+    link.setAttribute("download", exportName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+  // Excel (.xlsx) Downloader via SheetJS
+  btnExportXLSX.addEventListener('click', () => {
+    if (cleanedData.length === 0) return;
+
+    try {
+      // Create a worksheet from array of arrays
+      const worksheet = XLSX.utils.aoa_to_sheet(cleanedData);
+      
+      // Create a workbook and append worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Cleaned");
+      
+      // Auto-fit column widths
+      const colWidths = cleanedData[0].map((_, colIdx) => {
+        let maxLen = 10;
+        cleanedData.forEach(row => {
+          const val = row[colIdx] !== undefined ? String(row[colIdx]) : '';
+          if (val.length > maxLen) maxLen = val.length;
+        });
+        return { wch: maxLen + 2 };
+      });
+      worksheet['!cols'] = colWidths;
+
+      // Write excel file
+      let exportName = 'data_cleaned.xlsx';
+      if (currentFileName) {
+        const parts = currentFileName.split('.');
+        parts.pop();
+        exportName = parts.join('.') + '_cleaned.xlsx';
+      }
+      
+      XLSX.writeFile(workbook, exportName);
+    } catch (err) {
+      alert('Không thể xuất tệp Excel: ' + err.message);
+    }
+  });
+});

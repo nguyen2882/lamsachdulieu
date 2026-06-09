@@ -2,264 +2,443 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Bé Ngoan Mỗi Ngày - Game Rèn Luyện Thói Quen Tự Giác</title>
-  <meta name="description" content="Trò chơi theo dõi thói quen tốt hàng ngày giúp trẻ em rèn luyện thói quen tự giác, tích lũy sao thăng cấp và nhận các phần thưởng hấp dẫn từ cha mẹ.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataCleaner Pro - Tối Ưu & Làm Sạch Email, SĐT, Họ Tên</title>
+  <meta name="description" content="Công cụ bảo mật, chạy trực tiếp trên trình duyệt giúp làm sạch, chuẩn hóa và loại bỏ trùng lặp danh sách Email, Số điện thoại và Họ tên của bạn.">
   
-  <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#0a8a5a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Bé Ngoan">
-  <link rel="apple-touch-icon" href="icon-512.png">
-  <link rel="manifest" href="manifest.json">
+  <!-- Google Fonts - Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Styling -->
+  <!-- CSS Stylesheet -->
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
 
-  <!-- Confetti Canvas for celebration -->
-  <canvas id="confetti-canvas"></canvas>
+  <!-- Background decorative blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
-  <div class="container">
+  <div class="app-container">
     
-    <!-- PWA Install Guide Banner -->
-    <div id="installBanner" class="install-banner">
-      <div class="install-header">
-        <img src="icon-192.png" alt="Icon Bé Ngoan" class="install-icon">
-        <div class="install-title">
-          <h3>Ghim Ra Màn Hình Điện Thoại</h3>
-          <p>Tải ứng dụng về máy để chơi offline bất kỳ lúc nào!</p>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h2>DataCleaner<span>Pro</span></h2>
+          <p>Bảo mật • Trực tiếp trên trình duyệt</p>
         </div>
       </div>
-      <div id="installInstructions" class="install-body">
-        <!-- Will be filled by JS: standard install button or iOS Safari guide -->
-        Đang tải hướng dẫn...
-      </div>
-      <div class="install-actions">
-        <button id="btnCloseBanner" class="btn-close-banner">Đóng</button>
-        <button id="btnInstallApp" class="btn-install" style="display: none;">Cài Đặt Ngay</button>
-      </div>
-    </div>
-
-    <!-- Header & Gamification Progress Card -->
-    <header class="header-card">
-      <div class="profile-section">
-        <!-- Clickable avatar to edit -->
-        <div class="avatar-container" id="btnChangeAvatar" title="Đổi ảnh đại diện">
-          <div id="currentAvatar">
-            <!-- Filled by JS with cute SVG -->
-          </div>
-          <span class="badge-edit-avatar">✏️</span>
-        </div>
-        
-        <div class="stats-container">
-          <p class="welcome-text">Xin chào bạn nhỏ!</p>
-          <h1 class="kid-name" id="kidName">Bé Ngoan</h1>
-          
-          <div class="stars-badge" title="Số sao tích lũy được">
-            <span class="star-icon">⭐</span>
-            <span id="starCounter">0</span>
-          </div>
-        </div>
-
-        <!-- Streak Badge -->
-        <div class="streak-badge" id="streakBadge" title="Chuỗi ngày chăm chỉ">
-          🔥 <span id="streakCounter">0</span> ngày
-        </div>
-      </div>
-
-      <!-- Level & Progress Bar -->
-      <div class="level-container">
-        <div class="level-header">
-          <span class="level-title">Danh hiệu: <strong id="levelTitle">Bé Ngoan Tập Sự</strong></span>
-          <span class="level-number">Cấp <span id="levelNumber">1</span></span>
-        </div>
-        <div class="level-progress-bg">
-          <div class="level-progress-bar" id="levelProgressBar"></div>
-        </div>
-        <div class="level-header" style="justify-content: flex-end; font-size: 0.75rem; color: var(--text-muted);">
-          <span>Cần <span id="starsNeeded">100</span> sao để thăng cấp</span>
-        </div>
+      
+      <div class="header-actions">
+        <button id="themeToggle" class="btn-icon" aria-label="Đổi giao diện">
+          <!-- Light Mode Icon -->
+          <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21M5.036 5.036l1.591 1.591m10.746 10.746l1.591 1.591M3 12h2.25m13.5 0H21M5.036 18.964l1.591-1.591M16.518 6.518l1.591-1.591M12 7.5a4.5 4.5 0 110 9 4.5 4.5 0 010-9z" />
+          </svg>
+          <!-- Dark Mode Icon -->
+          <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="display:none;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        </button>
       </div>
     </header>
 
-    <!-- Daily Habits Checklist Section -->
-    <main>
-      <section>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h2 class="section-title">✨ Việc Ngoan Hôm Nay</h2>
-          <span style="font-size: 0.85rem; font-weight: 800; color: var(--primary); background: var(--primary-light); padding: 4px 10px; border-radius: 20px;" id="dateDisplay"></span>
-        </div>
-        <div class="habits-grid" id="habitsGrid">
-          <!-- Populated by JS -->
-        </div>
-      </section>
-
-      <!-- Dream Rewards Section -->
-      <section class="rewards-section">
-        <h2 class="section-title" style="color: #d97706;">🎁 Bảng Quà Mơ Ước</h2>
-        <div id="rewardsGrid" class="habits-grid">
-          <!-- Populated by JS -->
-        </div>
-      </section>
-    </main>
-
-  </div>
-
-  <!-- Parent Trigger Button at bottom -->
-  <div class="parent-trigger-container">
-    <button id="btnParentArea" class="btn-parent-trigger">
-      ⚙️ Góc Cha Mẹ (Cài Đặt)
-    </button>
-  </div>
-
-  <!-- Security Verification Modal (Math Challenge) -->
-  <div id="modalSecurity" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">🔐 Vùng Bảo Mật</h2>
-        <button class="btn-close-modal" id="btnCloseSecurity">&times;</button>
-      </div>
-      <form id="securityForm" class="security-form" onsubmit="event.preventDefault();">
-        <p class="security-question">Cha mẹ hãy giải phép tính dưới đây để truy cập:</p>
-        <div class="math-expression" id="mathChallenge">5 + 7 = ?</div>
-        <input type="number" id="securityAnswer" class="security-input" required placeholder="?">
-        <button type="submit" class="btn-verify" id="btnVerifySecurity">Xác Nhận</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Parent Area Modal -->
-  <div id="modalParentArea" class="modal-overlay">
-    <div class="modal-content" style="max-width: 520px;">
-      <div class="modal-header">
-        <h2 class="modal-title">⚙️ Bảng Điều Khiển Của Cha Mẹ</h2>
-        <button class="btn-close-modal" id="btnCloseParentArea">&times;</button>
-      </div>
+    <!-- Main Workspace Grid -->
+    <div class="workspace-grid">
       
-      <!-- Tabs -->
-      <div class="parent-tabs">
-        <button class="tab-btn active" data-tab="tabHabits">Thói Quen</button>
-        <button class="tab-btn" data-tab="tabRewards">Phần Thưởng</button>
-        <button class="tab-btn" data-tab="tabConfig">Thiết Lập</button>
-      </div>
+      <!-- Left Column: Configurations -->
+      <aside class="config-sidebar card">
+        <h3 class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.991l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.645-.869l.214-1.28z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Quy tắc làm sạch dữ liệu
+        </h3>
 
-      <!-- Tab: Habits Management -->
-      <div id="tabHabits" class="tab-pane active">
-        <form id="formAddHabit" class="security-form" style="text-align: left; align-items: stretch; gap: 12px;">
-          <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--primary);">➕ Thêm Thói Quen Mới</h3>
-          
-          <div class="form-group">
-            <label for="habitNameInput">Tên thói quen</label>
-            <input type="text" id="habitNameInput" class="form-control" placeholder="Ví dụ: Rửa bát giúp mẹ" required>
+        <!-- Name Cleaner Settings -->
+        <div class="config-section">
+          <div class="section-header name-header">
+            <span class="dot dot-name"></span>
+            <h4>Chuẩn hóa Họ và Tên</h4>
           </div>
-          
-          <div class="row">
-            <div class="col class-group">
-              <label for="habitStarsInput">Số sao thưởng</label>
-              <input type="number" id="habitStarsInput" class="form-control" min="5" max="100" value="10" required>
+          <div class="options-list">
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Viết hoa chữ cái đầu</strong>
+                <small>Ví dụ: nguyễn văn a -> Nguyễn Văn A</small>
+              </span>
+              <input type="checkbox" id="ruleNameCapitalize" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Loại bỏ khoảng trắng thừa</strong>
+                <small>Xóa khoảng trắng ở đầu, cuối và giữa</small>
+              </span>
+              <input type="checkbox" id="ruleNameTrim" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Chuyển sang không dấu</strong>
+                <small>Ví dụ: Nguyễn Văn A -> Nguyen Van A</small>
+              </span>
+              <input type="checkbox" id="ruleNameNoAccents">
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Phone Cleaner Settings -->
+        <div class="config-section">
+          <div class="section-header phone-header">
+            <span class="dot dot-phone"></span>
+            <h4>Chuẩn hóa Số điện thoại</h4>
+          </div>
+          <div class="options-list">
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Chỉ giữ lại chữ số</strong>
+                <small>Loại bỏ dấu cách, dấu chấm, dấu gạch ngang</small>
+              </span>
+              <input type="checkbox" id="rulePhoneDigitsOnly" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Chuẩn hóa mã quốc gia (+84)</strong>
+                <small>Đổi số bắt đầu bằng 0 thành +84 (hoặc ngược lại)</small>
+              </span>
+              <input type="checkbox" id="rulePhoneCountryCode" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <div class="sub-option" id="phoneFormatSelectContainer">
+              <label for="phoneFormat">Định dạng SĐT đầu ra:</label>
+              <select id="phoneFormat" class="select-control">
+                <option value="prefix_0">Bắt đầu bằng 0 (Ví dụ: 0912345678)</option>
+                <option value="prefix_84">Bắt đầu bằng 84 (Ví dụ: 84912345678)</option>
+                <option value="prefix_plus84" selected>Bắt đầu bằng +84 (Ví dụ: +84912345678)</option>
+              </select>
             </div>
-            <div class="col class-group">
-              <label>Icon minh họa</label>
-              <input type="hidden" id="habitIconInput" value="⭐">
-              <div class="icon-selector-grid" id="iconSelector">
-                <!-- Filled by JS -->
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Đổi đầu số cũ sang mới (VN)</strong>
+                <small>Ví dụ: 0168 -> 038, 0123 -> 083...</small>
+              </span>
+              <input type="checkbox" id="rulePhoneConvertOldPrefix" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Loại bỏ SĐT không hợp lệ</strong>
+                <small>SĐT không đủ 10 chữ số (hoặc đầu số sai)</small>
+              </span>
+              <input type="checkbox" id="rulePhoneValidate" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Email Cleaner Settings -->
+        <div class="config-section">
+          <div class="section-header email-header">
+            <span class="dot dot-email"></span>
+            <h4>Chuẩn hóa Email</h4>
+          </div>
+          <div class="options-list">
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Chuyển về chữ thường (lowercase)</strong>
+                <small>Tránh lỗi phân biệt chữ hoa/thường</small>
+              </span>
+              <input type="checkbox" id="ruleEmailLowercase" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Kiểm tra định dạng hợp lệ</strong>
+                <small>Loại bỏ email không đúng cấu trúc regex</small>
+              </span>
+              <input type="checkbox" id="ruleEmailValidate" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Lọc email rác / email ảo</strong>
+                <small>Loại bỏ các email tạm thời (yopmail, tempmail...)</small>
+              </span>
+              <input type="checkbox" id="ruleEmailFilterDisposable" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Deduplication settings -->
+        <div class="config-section">
+          <div class="section-header dup-header">
+            <span class="dot dot-dup"></span>
+            <h4>Trùng lặp & Tùy chọn khác</h4>
+          </div>
+          <div class="options-list">
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Loại bỏ dữ liệu trùng lặp</strong>
+                <small>Giữ lại bản ghi xuất hiện đầu tiên</small>
+              </span>
+              <input type="checkbox" id="ruleDeduplicate" checked>
+              <span class="switch-slider"></span>
+            </label>
+            <div class="sub-option" id="dupColumnSelectContainer">
+              <label for="dedupCriteria">Tiêu chí trùng lặp dựa trên:</label>
+              <select id="dedupCriteria" class="select-control">
+                <option value="any">Bất kỳ trường nào (Email hoặc SĐT trùng)</option>
+                <option value="email">Chỉ trùng Email</option>
+                <option value="phone">Chỉ trùng SĐT</option>
+                <option value="all" selected>Trùng lặp toàn bộ dòng dữ liệu</option>
+              </select>
+            </div>
+            <label class="switch-container">
+              <span class="option-label">
+                <strong>Xóa các dòng trống</strong>
+                <small>Loại bỏ các bản ghi không có thông tin</small>
+              </span>
+              <input type="checkbox" id="ruleRemoveEmpty" checked>
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column: Input & Results -->
+      <main class="main-content">
+        
+        <!-- Input Mode Tabs -->
+        <div class="tabs-header">
+          <button id="tabBtnFile" class="tab-btn active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            Tải tệp tin (CSV, Excel, TXT)
+          </button>
+          <button id="tabBtnRaw" class="tab-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            </svg>
+            Nhập văn bản thủ công
+          </button>
+        </div>
+
+        <!-- Input Panel Viewports -->
+        <div class="input-panel card">
+          
+          <!-- Viewport 1: File Upload -->
+          <div id="panelFile" class="panel-pane active">
+            <div id="dropzone" class="dropzone-area">
+              <input type="file" id="fileInput" accept=".csv, .xlsx, .xls, .txt" style="display: none;">
+              <div class="dropzone-content">
+                <div class="upload-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                  </svg>
+                </div>
+                <h3>Kéo & Thả tệp tin của bạn vào đây</h3>
+                <p>Hỗ trợ định dạng CSV, XLSX, XLS hoặc TXT. Kích thước tối đa 20MB.</p>
+                <button type="button" class="btn btn-secondary" id="browseBtn">Chọn tệp tin từ máy tính</button>
+              </div>
+            </div>
+            
+            <div id="selectedFileInfo" class="selected-file-info" style="display: none;">
+              <span class="file-icon">📄</span>
+              <div class="file-details">
+                <h4 id="selectedFileName">file_data.xlsx</h4>
+                <p id="selectedFileSize">1.2 MB</p>
+              </div>
+              <button id="removeFileBtn" class="btn-remove" title="Xóa tệp này">&times;</button>
+            </div>
+          </div>
+
+          <!-- Viewport 2: Raw Text Area -->
+          <div id="panelRaw" class="panel-pane">
+            <div class="textarea-container">
+              <textarea id="rawTextarea" placeholder="Dán dữ liệu của bạn vào đây...&#10;Hỗ trợ định dạng tự do. Mỗi cột phân tách bằng dấu phẩy (,), dấu chấm phẩy (;), tab, hoặc khoảng trắng.&#10;&#10;Ví dụ:&#10;Nguyễn Văn A, 0912345678, nguYenvAna@gmail.com&#10;trần thị b; 01689998888; tranthib@yopmail.com&#10;Lê Văn C | +84988887777 | le.vanc@yahoo.com"></textarea>
+              <div class="textarea-actions">
+                <button id="clearRawTextBtn" class="btn-text">Xóa tất cả</button>
+                <button id="loadExampleBtn" class="btn-text">Tải dữ liệu mẫu</button>
               </div>
             </div>
           </div>
           
-          <button type="submit" class="btn-submit">Thêm Vào Danh Sách</button>
-        </form>
-
-        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 12px 0;">
-
-        <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--text-dark); margin-bottom: 8px;">📋 Quản Lý Danh Sách</h3>
-        <div class="admin-list" id="adminHabitsList">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- Tab: Rewards Management -->
-      <div id="tabRewards" class="tab-pane">
-        <form id="formAddReward" class="security-form" style="text-align: left; align-items: stretch; gap: 12px;">
-          <h3 style="font-weight: 800; font-size: 1.05rem; color: #ca8a04;">➕ Thêm Phần Thưởng Mơ Ước</h3>
-          
-          <div class="form-group">
-            <label for="rewardNameInput">Tên phần thưởng</label>
-            <input type="text" id="rewardNameInput" class="form-control" placeholder="Ví dụ: Được đi ăn kem cùng cả nhà" required>
-          </div>
-          
-          <div class="row">
-            <div class="col form-group">
-              <label for="rewardStarsInput">Sao cần đổi</label>
-              <input type="number" id="rewardStarsInput" class="form-control" min="10" max="2000" value="100" required>
-            </div>
-            <div class="col form-group">
-              <label>Icon phần thưởng</label>
-              <input type="hidden" id="rewardIconInput" value="🎁">
-              <div class="icon-selector-grid" id="rewardIconSelector">
-                <!-- Filled by JS -->
+          <!-- Column Mapping Helper (Visible when Excel/CSV file is loaded) -->
+          <div id="columnMappingSection" class="column-mapping-section" style="display: none;">
+            <h4>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5" />
+              </svg>
+              Liên kết cột dữ liệu
+            </h4>
+            <p>Hệ thống đã tự động khớp cột. Vui lòng kiểm tra lại nếu tiêu đề cột khác biệt:</p>
+            <div class="mapping-grid">
+              <div class="mapping-item">
+                <label for="mapNameCol">Cột chứa Họ Tên:</label>
+                <select id="mapNameCol" class="select-control col-map-select"><option value="">-- Không có / Bỏ qua --</option></select>
+              </div>
+              <div class="mapping-item">
+                <label for="mapPhoneCol">Cột chứa SĐT:</label>
+                <select id="mapPhoneCol" class="select-control col-map-select"><option value="">-- Không có / Bỏ qua --</option></select>
+              </div>
+              <div class="mapping-item">
+                <label for="mapEmailCol">Cột chứa Email:</label>
+                <select id="mapEmailCol" class="select-control col-map-select"><option value="">-- Không có / Bỏ qua --</option></select>
               </div>
             </div>
           </div>
+
+          <!-- Action Button Area -->
+          <div class="action-bar">
+            <button id="btnProcess" class="btn btn-primary btn-lg" disabled>
+              <svg class="icon-sparkles" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21L7.188 15.904L2 15L7.188 14.096L9 9L10.813 14.096L16 15L9.813 15.904Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.071 4.929a10 10 0 00-14.142 0M19.071 4.929a10 10 0 010 14.142M4.929 4.929a10 10 0 000 14.142" />
+              </svg>
+              <span id="processBtnText">Bắt đầu làm sạch dữ liệu</span>
+              <div class="spinner" style="display: none;"></div>
+            </button>
+          </div>
           
-          <button type="submit" class="btn-submit" style="background-color: #ca8a04;">Thêm Phần Thưởng</button>
-        </form>
-
-        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 12px 0;">
-
-        <h3 style="font-weight: 800; font-size: 1.05rem; color: var(--text-dark); margin-bottom: 8px;">📋 Quản Lý Quà</h3>
-        <div class="admin-list" id="adminRewardsList">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-
-      <!-- Tab: Configuration -->
-      <div id="tabConfig" class="tab-pane">
-        <div class="form-group">
-          <label for="kidNameInput">Tên của bé</label>
-          <input type="text" id="kidNameInput" class="form-control" value="Bé Ngoan">
-        </div>
-        
-        <div class="form-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 8px;">
-          <label for="soundToggle" style="cursor: pointer;">🔊 Bật âm thanh chúc mừng</label>
-          <input type="checkbox" id="soundToggle" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
         </div>
 
-        <div style="height: 10px;"></div>
-        
-        <h3 style="font-weight: 800; font-size: 1.05rem; color: #ef4444; margin-bottom: 8px;">⚠️ Vùng Nguy Hiểm</h3>
-        <div class="config-buttons">
-          <button id="btnResetStars" class="btn-danger">
-            🔄 Đặt Lại Sao & Cấp Độ Về 0
-          </button>
-          <button id="btnResetAll" class="btn-danger" style="background-color: #fef2f2; border-color: #fca5a5;">
-            💥 Xóa Tất Cả & Cài Lại Mặc Định
-          </button>
-        </div>
-      </div>
+        <!-- Processing Stats & Results Dashboard (Hidden initially) -->
+        <section id="resultsDashboard" class="results-dashboard" style="display: none;">
+          
+          <div class="section-title-wrapper">
+            <h3 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+              </svg>
+              Kết quả phân tích & Làm sạch
+            </h3>
+            <span class="badge-success">Đã hoàn thành</span>
+          </div>
+
+          <!-- Stats Cards Grid -->
+          <div class="stats-grid">
+            <div class="stat-card card-total">
+              <div class="stat-icon">📥</div>
+              <div class="stat-num" id="statTotalRows">0</div>
+              <div class="stat-label">Tổng số bản ghi đầu vào</div>
+            </div>
+            <div class="stat-card card-valid">
+              <div class="stat-icon">✅</div>
+              <div class="stat-num" id="statValidRows">0</div>
+              <div class="stat-label">Dữ liệu sạch (Hợp lệ)</div>
+            </div>
+            <div class="stat-card card-cleaned">
+              <div class="stat-icon">🔧</div>
+              <div class="stat-num" id="statFixedRows">0</div>
+              <div class="stat-label">Dữ liệu được chuẩn hóa</div>
+            </div>
+            <div class="stat-card card-removed">
+              <div class="stat-icon">❌</div>
+              <div class="stat-num" id="statInvalidRows">0</div>
+              <div class="stat-label">Dòng sai/bị loại bỏ</div>
+            </div>
+            <div class="stat-card card-dups">
+              <div class="stat-icon">♻️</div>
+              <div class="stat-num" id="statDupsRemoved">0</div>
+              <div class="stat-label">Trùng lặp bị loại bỏ</div>
+            </div>
+          </div>
+
+          <!-- Statistics Visualization and Details -->
+          <div class="analytics-row">
+            <div class="analytics-card card chart-card">
+              <h4>Tỷ lệ chất lượng dữ liệu</h4>
+              <div class="chart-container">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                  <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path id="chartCircleProgress" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <text x="18" y="20.35" class="percentage" id="chartPercentage">0%</text>
+                </svg>
+                <div class="chart-legend">
+                  <div class="legend-item"><span class="legend-dot color-clean"></span> Sạch (<span id="pctClean">0%</span>)</div>
+                  <div class="legend-item"><span class="legend-dot color-dirty"></span> Lỗi/Trùng/Trống (<span id="pctDirty">0%</span>)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="analytics-card card logs-card">
+              <h4>Báo cáo chi tiết các lỗi đã sửa</h4>
+              <div class="logs-container" id="logsContainer">
+                <!-- Log messages populated by JS -->
+                <p class="empty-logs">Không phát hiện lỗi nghiêm trọng cần sửa đổi.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Table Section -->
+          <div class="preview-section card">
+            <div class="preview-header">
+              <h4>Xem trước dữ liệu đã làm sạch (Tối đa 50 bản ghi đầu)</h4>
+              <div class="export-actions">
+                <button id="btnExportCSV" class="btn btn-secondary-outline">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  Tải xuống CSV
+                </button>
+                <button id="btnExportXLSX" class="btn btn-success">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  Tải xuống Excel (.xlsx)
+                </button>
+              </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table id="previewTable" class="table">
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Họ và Tên (Đã làm sạch)</th>
+                    <th>Số điện thoại (Đã làm sạch)</th>
+                    <th>Email (Đã làm sạch)</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTableBody">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+      </main>
+
     </div>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 DataCleaner Pro. An toàn tuyệt đối - Dữ liệu không bao giờ rời khỏi thiết bị của bạn.</p>
+    </footer>
+
   </div>
 
-  <!-- Avatar Change Modal -->
-  <div id="modalAvatar" class="modal-overlay">
-    <div class="modal-content" style="max-width: 400px;">
-      <div class="modal-header">
-        <h2 class="modal-title">🐯 Chọn Bạn Đồng Hành</h2>
-        <button class="btn-close-modal" id="btnCloseAvatar">&times;</button>
-      </div>
-      <p style="font-size: 0.95rem; text-align: center; color: var(--text-muted); font-weight: 600;">
-        Bé hãy chọn một con vật ngộ nghĩnh làm ảnh đại diện nhé!
-      </p>
-      <div class="avatar-selection-grid" id="avatarSelectionGrid">
-        <!-- Filled by JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- JavaScript application logic -->
+  <!-- PapaParse Library for CSV Parse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <!-- SheetJS Library for Excel Read/Write -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- App JavaScript Logic -->
   <script src="app.js"></script>
 </body>
 </html>
