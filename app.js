@@ -2,6 +2,20 @@
    DATACLEANER PRO - MULTI-FUNCTIONAL GREEN EDITION LOGIC
    ========================================================================== */
 
+// Tự động hủy đăng ký Service Worker cũ của ứng dụng "Bé Ngoan" để dọn dẹp bộ nhớ đệm (PWA Cache)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister().then(function(boolean) {
+        if (boolean) {
+          console.log('Đã hủy đăng ký Service Worker cũ.');
+          window.location.reload(); // Tải lại trang để nhận mã nguồn mới
+        }
+      });
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // --- UI Elements ---
   const tabLinks = document.querySelectorAll('.tab-link');
