@@ -164,7 +164,8 @@ let state = {
   lastOpenDate: "",
   soundEnabled: true,
   habits: [...DEFAULT_HABITS],
-  rewards: [...DEFAULT_REWARDS]
+  rewards: [...DEFAULT_REWARDS],
+  yesterdayHabits: []
 };
 
 // Hàm tải trạng thái từ localStorage
@@ -177,6 +178,7 @@ function loadState() {
       if (!state.habits || state.habits.length === 0) state.habits = [...DEFAULT_HABITS];
       if (!state.rewards || state.rewards.length === 0) state.rewards = [...DEFAULT_REWARDS];
       if (state.soundEnabled === undefined) state.soundEnabled = true;
+      if (!state.yesterdayHabits) state.yesterdayHabits = [];
     } catch (e) {
       console.error("Lỗi parse LocalStorage:", e);
     }
@@ -199,6 +201,17 @@ function checkDailyReset() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toDateString();
+    
+    // Lưu thành tích của ngày trước đó (yesterday)
+    if (state.lastOpenDate === yesterdayStr) {
+      // Đúng là ngày hôm qua
+      state.yesterdayHabits = state.habits
+        .filter(h => h.completed)
+        .map(h => ({ name: h.name, icon: h.icon, stars: h.stars }));
+    } else {
+      // Đã cách nhiều ngày, ngày hôm qua bé không làm việc tốt nào
+      state.yesterdayHabits = [];
+    }
     
     // Kiểm tra xem hôm qua bé có hoàn thành thói quen nào không
     const completedYesterday = state.habits.some(h => h.completed);
@@ -396,7 +409,48 @@ function getLevelTitle(level) {
   return LEVEL_TITLES[index];
 }
 
+// Hàm hiển thị thành tích ngày hôm qua
+function renderYesterdayAchievements() {
+  const yesterdayCard = document.getElementById("yesterdayCard");
+  const yesterdayList = document.getElementById("yesterdayList");
+  
+  if (!yesterdayCard || !yesterdayList) return;
+  
+  // Chỉ hiện card nếu đã có ngày truy cập trước đó (không phải lần đầu mở app)
+  if (!state.lastOpenDate) {
+    yesterdayCard.style.display = "none";
+    return;
+  }
+  
+  yesterdayCard.style.display = "flex";
+  yesterdayList.innerHTML = "";
+  
+  const habits = state.yesterdayHabits || [];
+  
+  if (habits.length === 0) {
+    yesterdayList.innerHTML = `
+      <div class="yesterday-empty">
+        Hôm qua bé chưa tích lũy được việc ngoan nào. Hôm nay cố lên nhé! 💪
+      </div>
+    `;
+  } else {
+    habits.forEach(h => {
+      const item = document.createElement("div");
+      item.className = "yesterday-item";
+      item.innerHTML = `
+        <span class="yesterday-item-icon">${h.icon}</span>
+        <span class="yesterday-item-text">${h.name}</span>
+        <span class="yesterday-item-stars">+${h.stars} ⭐</span>
+      `;
+      yesterdayList.appendChild(item);
+    });
+  }
+}
+
 function renderDashboard() {
+  // Hiển thị thành tích hôm qua
+  renderYesterdayAchievements();
+
   // Cập nhật Profile
   document.getElementById("kidName").textContent = state.kidName;
   document.getElementById("starCounter").textContent = state.stars;
@@ -821,6 +875,14 @@ window.onclick = (event) => {
     modalAvatar.style.display = "none";
   }
 };
+
+// Cài đặt sự kiện click mở rộng/thu gọn card thành tích hôm qua
+const yesterdayCard = document.getElementById("yesterdayCard");
+if (yesterdayCard) {
+  yesterdayCard.onclick = () => {
+    yesterdayCard.classList.toggle("expanded");
+  };
+}
 
 // === 10. HỖ TRỢ CÀI ĐẶT PWA OFFLINE (ADD TO HOME SCREEN) ===
 let deferredPrompt;

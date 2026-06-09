@@ -1,4 +1,4 @@
-const CACHE_NAME = "be-ngoan-v1";
+const CACHE_NAME = "be-ngoan-v2";
 const ASSETS = [
   "./",
   "./index.html",
