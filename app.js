@@ -1,73 +1,85 @@
 /* ==========================================================================
-   DATACLEANER PRO - DYNAMIC & REAL-TIME LOGIC
+   DATACLEANER PRO - MULTI-FUNCTIONAL GREEN EDITION LOGIC
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- UI Elements ---
-  const rawTextarea = document.getElementById('rawTextarea');
-  const charCount = document.getElementById('charCount');
+  const tabLinks = document.querySelectorAll('.tab-link');
+  const activeTaskTitle = document.getElementById('activeTaskTitle');
+  const taskInstructions = document.getElementById('taskInstructions');
+  const btnLoadDummy = document.getElementById('btnLoadDummy');
+  
+  // Config Panes
+  const configPanes = document.querySelectorAll('.task-config-pane');
+  const configEmail = document.getElementById('configEmail');
+  const configPhone = document.getElementById('configPhone');
+  const configCurrency = document.getElementById('configCurrency');
+  const configDate = document.getElementById('configDate');
+  
+  // Checkboxes & Inputs
+  const ruleEmailTelex = document.getElementById('ruleEmailTelex');
+  const ruleEmailLowercase = document.getElementById('ruleEmailLowercase');
+  const ruleEmailValidate = document.getElementById('ruleEmailValidate');
+  
+  const rulePhoneConvertOld = document.getElementById('rulePhoneConvertOld');
+  const rulePhoneFormat = document.getElementById('rulePhoneFormat');
+  const phoneFormat = document.getElementById('phoneFormat');
+  const phoneFormatSelectContainer = document.getElementById('phoneFormatSelectContainer');
+  
+  const currencyInputFormat = document.getElementById('currencyInputFormat');
+  const currencyOutputSymbol = document.getElementById('currencyOutputSymbol');
+  
+  const dateInputFormat = document.getElementById('dateInputFormat');
+  const dateOutputFormat = document.getElementById('dateOutputFormat');
+  
+  const rawInputText = document.getElementById('rawInputText');
+  const charCounter = document.getElementById('charCounter');
   
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
-  const selectedFileInfo = document.getElementById('selectedFileInfo');
-  const selectedFileName = document.getElementById('selectedFileName');
-  const selectedFileSize = document.getElementById('selectedFileSize');
-  const removeFileBtn = document.getElementById('removeFileBtn');
+  const fileInfoBox = document.getElementById('fileInfoBox');
+  const fileNameText = document.getElementById('fileNameText');
+  const fileSizeText = document.getElementById('fileSizeText');
+  const btnRemoveFile = document.getElementById('btnRemoveFile');
   
   const columnMappingSection = document.getElementById('columnMappingSection');
   const mapPhoneCol = document.getElementById('mapPhoneCol');
   const mapEmailCol = document.getElementById('mapEmailCol');
   const mapNameCol = document.getElementById('mapNameCol');
   const colMapSelects = document.querySelectorAll('.col-map-select');
+
+  // Stats Widgets
+  const statTitle1 = document.getElementById('statTitle1');
+  const statTitle2 = document.getElementById('statTitle2');
+  const statTitle3 = document.getElementById('statTitle3');
+  const statTitle4 = document.getElementById('statTitle4');
   
-  // Rules checkboxes
-  const ruleEmailTelex = document.getElementById('ruleEmailTelex');
-  const ruleEmailLowercase = document.getElementById('ruleEmailLowercase');
-  const ruleEmailValidate = document.getElementById('ruleEmailValidate');
-  const ruleEmailFilterDisposable = document.getElementById('ruleEmailFilterDisposable');
-  
-  const rulePhoneDigitsOnly = document.getElementById('rulePhoneDigitsOnly');
-  const rulePhoneConvertOldPrefix = document.getElementById('rulePhoneConvertOldPrefix');
-  const rulePhoneCountryCode = document.getElementById('rulePhoneCountryCode');
-  const phoneFormat = document.getElementById('phoneFormat');
-  const phoneFormatSelectContainer = document.getElementById('phoneFormatSelectContainer');
-  const rulePhoneValidate = document.getElementById('rulePhoneValidate');
-  
-  const ruleDeduplicate = document.getElementById('ruleDeduplicate');
-  const dedupCriteria = document.getElementById('dedupCriteria');
-  const dupColumnSelectContainer = document.getElementById('dupColumnSelectContainer');
-  const ruleRemoveEmpty = document.getElementById('ruleRemoveEmpty');
-  
-  // Stats
-  const statTotal = document.getElementById('statTotal');
-  const statValid = document.getElementById('statValid');
-  const statFixed = document.getElementById('statFixed');
-  const statDup = document.getElementById('statDup');
-  const statError = document.getElementById('statError');
-  
+  const statVal1 = document.getElementById('statVal1');
+  const statVal2 = document.getElementById('statVal2');
+  const statVal3 = document.getElementById('statVal3');
+  const statVal4 = document.getElementById('statVal4');
+
   // Results & Table
   const searchInput = document.getElementById('searchInput');
   const btnCopyAll = document.getElementById('btnCopyAll');
   const btnExportTXT = document.getElementById('btnExportTXT');
   const btnExportCSV = document.getElementById('btnExportCSV');
-  const btnExportXLSX = document.getElementById('btnExportXLSX');
   const resultsTableBody = document.getElementById('resultsTableBody');
 
   // --- App State ---
-  let loadedFileData = null; // CSV/Excel parsed array of arrays
+  let activeTab = 'email'; // 'email', 'phone', 'currency', 'date'
+  let loadedFileData = null; // CSV parsed raw rows
   let loadedFileHeaders = [];
   let currentFileName = '';
   
-  // The final processed list of items currently displayed
-  let processedItemsList = []; 
-  // Cache of deleted row IDs to exclude them from calculations and displays
-  let deletedItemIds = new Set(); 
+  let processedItemsList = []; // Cleaned rows currently computed
+  let deletedItemIds = new Set(); // Row IDs excluded by user
 
   // Disposable email domains list
   const disposableEmailDomains = new Set([
     'yopmail.com', 'mailinator.com', '10minutemail.com', 'tempmail.com', 'temp-mail.org',
     'getairmail.com', 'guerrillamail.com', 'sharklasers.com', 'dispostable.com', 'boun.cr',
-    'trashmail.com', 'dropmail.me', '10minutemail.co.za', 'tempmailaddress.com', 'crazymailing.com'
+    'trashmail.com', 'dropmail.me'
   ]);
 
   // Old VN phone prefix mapping (11 digits -> 10 digits)
@@ -76,60 +88,168 @@ document.addEventListener('DOMContentLoaded', () => {
     '0166': '036', '0167': '037', '0168': '038', '0169': '039',
     '0120': '070', '0121': '079', '0122': '077', '0126': '076', '0128': '078',
     '0123': '083', '0124': '084', '0125': '085', '0127': '081', '0129': '082',
-    '0186': '056', '0188': '058',
-    '0199': '059'
+    '0186': '056', '0188': '058', '0199': '059'
+  };
+
+  // Dummy data set for each tab
+  const dummyDatasets = {
+    email: `Chào bạn, hãy liên hệ tôi qua email nguYenvAna@gmâil.cơm hoặc email phụ nguyenvana@gmail.com (email này trùng lặp).
+Ngoài ra còn có:
+- admin@yàhoo.com.vn
+- support@outlook.cơm
+- test_email_invalid@gmail (đây là email thiếu đuôi miền)
+- test_burner@yopmail.com (đây là hòm thư ảo yopmail)
+- marketing@gmâi.com`,
+    phone: `0904020011 (Hợp lệ gốc)
+090.402.0011 (Dấu chấm)
+090 402 0011 (Dấu cách)
+(+84)904 020 011 (Có mã quốc gia)
+09040200111 (Lỗi: thừa số, có 11 chữ số)
+090402001 (Lỗi: thiếu số, có 9 chữ số)
+0123.456.7890 (Đầu số di động cũ Vinaphone)
+0168.999.8888 (Đầu số di động cũ Viettel)`,
+    currency: `1.500.000,50đ (Định dạng Việt Nam)
+50.000 VND (Số tròn có chữ VND)
+$1,250,500.75 (Định dạng Quốc tế USD)
+1500000 (Chỉ có số thô)
+350k (Viết tắt hàng nghìn bằng chữ k)
+2.500đ
+invalid_value_123 (Dòng lỗi không trích xuất được tiền)`,
+    date: `02/03/2023 (Ngày 2 tháng 3 hay Ngày 3 tháng 2 tùy tab chọn)
+31-12-2022 (Định dạng dấu gạch ngang)
+2023-06-15 (Chuẩn ISO)
+12/31/2021 (Tháng trước ngày sau)
+31/02/2023 (Lỗi: ngày không tồn tại)
+45/12/2022 (Lỗi: ngày sai)`
+  };
+
+  const tabInstructionsText = {
+    email: 'Hướng dẫn: Trích xuất toàn bộ các địa chỉ email có mặt trong văn bản thô, làm sạch định dạng, sửa các lỗi Telex và xuất danh sách duy nhất không trùng lặp.',
+    phone: 'Hướng dẫn: Tự động phát hiện các chuỗi số điện thoại di động, loại bỏ ký tự lạ, chuyển đầu số 11 số sang 10 số di động Việt Nam mới, và phân loại SĐT hợp lệ (màu xanh lá) / không hợp lệ (màu đỏ).',
+    currency: 'Hướng dẫn: Trích xuất các số lượng tiền tệ có trong văn bản, quy đổi viết tắt (chữ k), định dạng dấu chấm/phẩy ngăn cách hàng nghìn/thập phân và chuẩn hóa về đồng tiền đích đầu ra.',
+    date: 'Hướng dẫn: Trích xuất các ngày tháng có trong văn bản, kiểm tra tính hợp lệ của ngày (bao gồm cả năm nhuận, ngày trong tháng), định dạng thống nhất về chuẩn ISO YYYY-MM-DD hoặc Việt Nam DD/MM/YYYY.'
+  };
+
+  const tabTitles = {
+    email: 'Tác vụ: Trích xuất Email',
+    phone: 'Tác vụ: Chuẩn hóa Số điện thoại',
+    currency: 'Tác vụ: Chuẩn hóa Tiền tệ',
+    date: 'Tác vụ: Chuẩn hóa Ngày tháng'
   };
 
   // ==========================================================================
-  // --- Initialization & Event Bindings ---
+  // --- Tab Switcher Logic ---
   // ==========================================================================
   
-  // Real-time text area changes
-  rawTextarea.addEventListener('input', () => {
-    updateCharCount();
-    // Clear file state if they are typing in the textarea
-    if (loadedFileData) {
+  tabLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      // Set active class
+      tabLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      
+      const targetTask = link.getAttribute('data-task');
+      activeTab = targetTask;
+      
+      // Update UI texts
+      activeTaskTitle.textContent = tabTitles[targetTask];
+      taskInstructions.textContent = tabInstructionsText[targetTask];
+      
+      // Update config panes
+      configPanes.forEach(p => p.classList.remove('active'));
+      if (targetTask === 'email') configEmail.classList.add('active');
+      if (targetTask === 'phone') configPhone.classList.add('active');
+      if (targetTask === 'currency') configCurrency.classList.add('active');
+      if (targetTask === 'date') configDate.classList.add('active');
+      
+      // Reset input & file state
       resetFileStateSilently();
-    }
-    processData();
-  });
-  
-  // Live search filter
-  searchInput.addEventListener('input', () => {
-    renderTable();
-  });
-
-  // Watch rules checkboxes to trigger real-time reprocessing
-  const configControls = [
-    ruleEmailTelex, ruleEmailLowercase, ruleEmailValidate, ruleEmailFilterDisposable,
-    rulePhoneDigitsOnly, rulePhoneConvertOldPrefix, rulePhoneCountryCode, phoneFormat, rulePhoneValidate,
-    ruleDeduplicate, dedupCriteria, ruleRemoveEmpty
-  ];
-  
-  configControls.forEach(control => {
-    control.addEventListener('change', () => {
-      // Toggle dependent containers
-      if (control === rulePhoneCountryCode) {
-        phoneFormatSelectContainer.style.display = rulePhoneCountryCode.checked ? 'flex' : 'none';
-      }
-      if (control === ruleDeduplicate) {
-        dupColumnSelectContainer.style.display = ruleDeduplicate.checked ? 'flex' : 'none';
-      }
+      rawInputText.value = '';
+      updateCharCount();
+      deletedItemIds = new Set();
+      searchInput.value = '';
+      
+      // Update stats labels
+      updateStatsLabels();
+      
+      // Process empty data
       processData();
     });
   });
 
+  function updateStatsLabels() {
+    if (activeTab === 'email') {
+      statTitle1.textContent = 'TỔNG TÌM THẤY';
+      statTitle2.textContent = 'HỢP LỆ';
+      statTitle3.textContent = 'ĐÃ SỬA LỖI';
+      statTitle4.textContent = 'TRÙNG LẶP / LỖI';
+    } else if (activeTab === 'phone') {
+      statTitle1.textContent = 'TỔNG DÒNG';
+      statTitle2.textContent = 'HỢP LỆ';
+      statTitle3.textContent = 'ĐÃ SỬA LỖI';
+      statTitle4.textContent = 'KHÔNG HỢP LỆ';
+    } else if (activeTab === 'currency') {
+      statTitle1.textContent = 'TỔNG TÌM THẤY';
+      statTitle2.textContent = 'HỢP LỆ';
+      statTitle3.textContent = 'ĐÃ SỬA LỖI';
+      statTitle4.textContent = 'KHÔNG PHÂN TÍCH ĐƯỢC';
+    } else if (activeTab === 'date') {
+      statTitle1.textContent = 'TỔNG TÌM THẤY';
+      statTitle2.textContent = 'HỢP LỆ';
+      statTitle3.textContent = 'ĐÃ FORMAT';
+      statTitle4.textContent = 'NGÀY KHÔNG TỒN TẠI';
+    }
+  }
+
+  // Bind raw text inputs
+  rawInputText.addEventListener('input', () => {
+    updateCharCount();
+    if (loadedFileData) resetFileStateSilently();
+    processData();
+  });
+
+  searchInput.addEventListener('input', () => {
+    renderTable();
+  });
+
+  rulePhoneFormat.addEventListener('change', () => {
+    phoneFormatSelectContainer.style.display = rulePhoneFormat.checked ? 'flex' : 'none';
+    processData();
+  });
+
+  // Watch other checkboxes for live updates
+  const reactiveControls = [
+    ruleEmailTelex, ruleEmailLowercase, ruleEmailValidate,
+    rulePhoneConvertOld, rulePhoneFormat, phoneFormat,
+    currencyInputFormat, currencyOutputSymbol,
+    dateInputFormat, dateOutputFormat
+  ];
+  reactiveControls.forEach(ctrl => {
+    ctrl.addEventListener('change', () => processData());
+  });
+
+  // Load dummy data click
+  btnLoadDummy.addEventListener('click', () => {
+    rawInputText.value = dummyDatasets[activeTab];
+    updateCharCount();
+    if (loadedFileData) resetFileStateSilently();
+    processData();
+  });
+
+  function updateCharCount() {
+    charCounter.textContent = `${rawInputText.value.length} ký tự`;
+  }
+
   // ==========================================================================
-  // --- File Upload Handlers ---
+  // --- File Drag & Drop ---
   // ==========================================================================
   
   dropzone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (file) handleFile(file);
+    if (file) handleUploadedFile(file);
   });
 
-  // Drag-and-drop mechanics
+  // Drag over effects
   ['dragenter', 'dragover'].forEach(eventName => {
     dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
@@ -149,10 +269,10 @@ document.addEventListener('DOMContentLoaded', () => {
   dropzone.addEventListener('drop', (e) => {
     const dt = e.dataTransfer;
     const file = dt.files[0];
-    if (file) handleFile(file);
+    if (file) handleUploadedFile(file);
   });
 
-  removeFileBtn.addEventListener('click', () => {
+  btnRemoveFile.addEventListener('click', () => {
     resetFileState();
     processData();
   });
@@ -162,57 +282,40 @@ document.addEventListener('DOMContentLoaded', () => {
     loadedFileHeaders = [];
     currentFileName = '';
     fileInput.value = '';
-    selectedFileInfo.style.display = 'none';
+    fileInfoBox.style.display = 'none';
     dropzone.style.display = 'block';
     columnMappingSection.style.display = 'none';
   };
 
   const resetFileState = () => {
     resetFileStateSilently();
-    rawTextarea.value = '';
+    rawInputText.value = '';
     updateCharCount();
   };
 
-  const handleFile = (file) => {
-    const maxSizeBytes = 20 * 1024 * 1024; // 20MB
-    if (file.size > maxSizeBytes) {
-      alert('Tệp quá lớn! Vui lòng chọn tệp dưới 20MB.');
-      return;
-    }
-
+  const handleUploadedFile = (file) => {
     currentFileName = file.name;
-    selectedFileName.textContent = file.name;
-    selectedFileSize.textContent = formatBytes(file.size);
+    fileNameText.textContent = file.name;
+    fileSizeText.textContent = parseFloat((file.size / 1024).toFixed(1)) + ' KB';
     
     dropzone.style.display = 'none';
-    selectedFileInfo.style.display = 'flex';
+    fileInfoBox.style.display = 'flex';
     
-    // Clear manual textarea
-    rawTextarea.value = '';
+    rawInputText.value = '';
     updateCharCount();
 
     const extension = file.name.split('.').pop().toLowerCase();
     
     if (extension === 'csv') {
       parseCSV(file);
-    } else if (extension === 'xlsx' || extension === 'xls') {
-      parseExcel(file);
     } else if (extension === 'txt' || extension === 'log') {
       parseTXT(file);
     } else {
-      alert('Định dạng tệp không hỗ trợ! Vui lòng chọn tệp CSV, Excel hoặc TXT.');
+      alert('Chỉ hỗ trợ tải tệp tin .csv, .txt hoặc .log!');
       resetFileState();
     }
   };
 
-  function formatBytes(bytes) {
-    if (bytes === 0) return '0 KB';
-    const k = 1024;
-    return parseFloat((bytes / k).toFixed(1)) + ' KB';
-  }
-
-  // --- File Parsers ---
-  
   function parseCSV(file) {
     Papa.parse(file, {
       skipEmptyLines: false,
@@ -227,55 +330,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function parseExcel(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-        
-        if (rows && rows.length > 0) {
-          storeParsedData(rows);
-        } else {
-          alert('Tệp Excel trống!');
-          resetFileState();
-        }
-      } catch (err) {
-        alert('Lỗi đọc Excel: ' + err.message);
-        resetFileState();
-      }
-    };
-    reader.readAsArrayBuffer(file);
-  }
-
   function parseTXT(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
-      const text = e.target.result;
-      const lines = text.split(/\r?\n/);
-      
-      // Delimiter detection
-      let delimiter = ',';
-      const sample = lines.slice(0, 5).filter(l => l.trim().length > 0);
-      if (sample.length > 0) {
-        const delims = [',', ';', '\t', '|'];
-        const counts = delims.map(d => ({
-          delim: d,
-          count: sample.reduce((acc, l) => acc + (l.split(d).length - 1), 0)
-        })).sort((a, b) => b.count - a.count);
-        if (counts[0].count > 0) delimiter = counts[0].delim;
-      }
-      
-      const rows = lines.map(line => line.split(delimiter).map(c => c.trim()));
+      const lines = e.target.result.split(/\r?\n/);
+      const rows = lines.map(line => [line.trim()]);
       storeParsedData(rows);
     };
     reader.readAsText(file);
   }
 
   function storeParsedData(rows) {
-    // Detect header row
     let headerIdx = 0;
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].some(cell => String(cell).trim() !== '')) {
@@ -291,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     loadedFileData = rows.slice(headerIdx + 1);
     
-    // Setup select options
+    // Setup mapping selects
     colMapSelects.forEach(select => {
       select.innerHTML = '<option value="">-- Bỏ qua --</option>';
       loadedFileHeaders.forEach((h, idx) => {
@@ -302,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     
-    // Auto map columns
+    // Auto map
     loadedFileHeaders.forEach((h, idx) => {
       const l = h.toLowerCase();
       if (l.includes('sdt') || l.includes('phone') || l.includes('sđt') || l.includes('điện thoại')) {
@@ -316,7 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     
-    // Listen for mapping changes
     colMapSelects.forEach(select => {
       select.onchange = () => processData();
     });
@@ -325,15 +389,11 @@ document.addEventListener('DOMContentLoaded', () => {
     processData();
   }
 
-  function updateCharCount() {
-    charCount.textContent = `${rawTextarea.value.length} ký tự`;
-  }
-
   // ==========================================================================
-  // --- Cleaning & Validation Helpers ---
+  // --- Cleaning Core Algorithms ---
   // ==========================================================================
   
-  // Sửa Telex và dấu tiếng Việt của Email
+  // 1. Email cleaning
   function fixEmailTelexAndAccents(email) {
     let cleaned = email.trim();
     const atIdx = cleaned.lastIndexOf('@');
@@ -342,14 +402,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let local = cleaned.substring(0, atIdx);
     let domain = cleaned.substring(atIdx + 1).toLowerCase();
     
-    // 1. Remove standard Vietnamese accents from domain and TLD using normalization
+    // Unicode normalization to strip accents
     domain = domain.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd');
     
-    // 2. Fix TLD typos (like .cơm -> .com)
+    // Fix TLDs
     domain = domain.replace(/\.cơm$|\.coơm$|\.cỏm$|\.cốm$|\.con$/g, '.com');
     domain = domain.replace(/\.vớn$|\.vỏn$/g, '.vn');
     
-    // 3. Fix common host name typos
+    // Fix hostnames
     domain = domain.replace(/^gmâil|^gmaỉl|^gmaill|^gamil|^gmali|^gmai$/g, 'gmail');
     domain = domain.replace(/^yàhoo|^yahou|^yaho$/g, 'yahoo');
     domain = domain.replace(/^outloọk|^outlok|^outluc$/g, 'outlook');
@@ -358,10 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return local + '@' + domain;
   }
 
-  // Clean Email function
   function cleanEmail(val) {
-    if (!val) return { value: '', logs: [], category: 'empty' };
-    
     let raw = String(val).trim();
     let original = raw;
     let logs = [];
@@ -370,39 +427,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (ruleEmailLowercase.checked) {
       cleaned = cleaned.toLowerCase();
     }
-    
     if (ruleEmailTelex.checked) {
       cleaned = fixEmailTelexAndAccents(cleaned);
     }
-    
     if (cleaned !== original) {
-      logs.push("Sửa lỗi gõ Telex/viết hoa email");
+      logs.push("Sửa lỗi gõ Telex/chữ thường");
     }
     
-    // Validate email
     if (ruleEmailValidate.checked) {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(cleaned)) {
-        return {
-          value: cleaned,
-          original,
-          logs: ["Email sai định dạng"],
-          category: 'error'
-        };
-      }
-    }
-    
-    // Filter disposable email
-    if (ruleEmailFilterDisposable.checked) {
-      const parts = cleaned.split('@');
-      const domain = parts[parts.length - 1];
-      if (disposableEmailDomains.has(domain)) {
-        return {
-          value: cleaned,
-          original,
-          logs: ["Phát hiện email ảo/tạm thời"],
-          category: 'error'
-        };
+        return { value: cleaned, original, logs: ["Email sai định dạng"], category: 'error' };
       }
     }
     
@@ -410,36 +445,28 @@ document.addEventListener('DOMContentLoaded', () => {
     return { value: cleaned, original, logs, category };
   }
 
-  // Clean Phone function
+  // 2. Phone cleaning
   function cleanPhone(val) {
-    if (!val) return { value: '', logs: [], category: 'empty' };
-    
     let raw = String(val).trim();
     let original = raw;
     let logs = [];
     
-    // 1. Remove spaces, dashes, dots, brackets
-    let cleaned = raw;
-    if (rulePhoneDigitsOnly.checked) {
-      // Keep leading '+' if present
-      const hasPlus = raw.startsWith('+');
-      cleaned = raw.replace(/[^\d]/g, '');
-      if (hasPlus) cleaned = '+' + cleaned;
-    } else {
-      cleaned = raw.replace(/\s+/g, '');
-    }
+    // Digits only
+    const hasPlus = raw.startsWith('+');
+    let cleaned = raw.replace(/[^\d]/g, '');
+    if (hasPlus) cleaned = '+' + cleaned;
     
     if (cleaned !== original) {
       logs.push("Xóa khoảng trắng/ký tự đặc biệt");
     }
     
-    // Standardize to 0 for prefix mapping and validation
+    // Convert standard to 0
     let temp = cleaned;
-    let hasPlus = temp.startsWith('+');
+    let startsPlus = temp.startsWith('+');
     let numberPart = temp.replace(/^\+/, '');
     let std0 = '';
     
-    if (hasPlus && numberPart.startsWith('84')) {
+    if (startsPlus && numberPart.startsWith('84')) {
       std0 = '0' + numberPart.slice(2);
     } else if (numberPart.startsWith('84') && numberPart.length > 9) {
       std0 = '0' + numberPart.slice(2);
@@ -447,14 +474,14 @@ document.addEventListener('DOMContentLoaded', () => {
       std0 = numberPart;
     } else if (numberPart.length === 9) {
       std0 = '0' + numberPart;
-      logs.push("Thêm số 0 vào trước SĐT");
+      logs.push("Thêm số 0 vào trước");
     } else {
       std0 = temp;
     }
     
-    // 2. Convert old 11-digit VN mobile prefixes to 10-digit
+    // Convert old prefix
     let converted = std0;
-    if (rulePhoneConvertOldPrefix.checked && std0.startsWith('0') && std0.length === 11) {
+    if (rulePhoneConvertOld.checked && std0.startsWith('0') && std0.length === 11) {
       const prefix4 = std0.substring(0, 4);
       if (vnPhonePrefixMap[prefix4]) {
         converted = vnPhonePrefixMap[prefix4] + std0.substring(4);
@@ -462,9 +489,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
-    // 3. Format output country code formatting
+    // Format output
     let formatted = converted;
-    if (rulePhoneCountryCode.checked && converted.startsWith('0') && converted.length === 10) {
+    if (rulePhoneFormat.checked && converted.startsWith('0') && converted.length === 10) {
       const fmt = phoneFormat.value;
       if (fmt === 'prefix_84') {
         formatted = '84' + converted.slice(1);
@@ -473,79 +500,170 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     
-    // 4. Validate Phone
+    // Validate
     let countDigits = converted.replace(/[^\d]/g, '').length;
     let isVnMobile = /^0[35789]\d{8}$/.test(converted);
     
-    if (rulePhoneValidate.checked) {
-      if (converted.length > 10) {
-        return {
-          value: formatted,
-          original,
-          logs: [`Thừa số: Xóa khoảng trắng/ký tự đặc biệt (có ${countDigits} số)`],
-          category: 'error'
-        };
-      } else if (converted.length < 10) {
-        return {
-          value: formatted,
-          original,
-          logs: [`Thiếu số: kiểm tra lại (có ${countDigits} số)`],
-          category: 'error'
-        };
-      } else if (!isVnMobile) {
-        return {
-          value: formatted,
-          original,
-          logs: [`Sai đầu số di động Việt Nam (có 10 số)`],
-          category: 'error'
-        };
-      }
+    if (converted.length > 10) {
+      return { value: formatted, original, logs: [`Thừa số (có ${countDigits} số)`], category: 'error' };
+    } else if (converted.length < 10) {
+      return { value: formatted, original, logs: [`Thiếu số (có ${countDigits} số)`], category: 'error' };
+    } else if (!isVnMobile) {
+      return { value: formatted, original, logs: [`Sai đầu số di động VN (có 10 số)`], category: 'error' };
     }
     
     const category = (formatted !== original || logs.length > 0) ? 'fixed' : 'valid';
     return { value: formatted, original, logs, category };
   }
 
-  // Clean Name helper
-  function cleanName(val) {
-    if (!val) return { value: '', logs: [], category: 'empty' };
-    
+  // 3. Currency cleaning
+  function cleanCurrency(val) {
     let raw = String(val).trim();
     let original = raw;
     let logs = [];
     
-    let cleaned = raw.replace(/\s+/g, ' ').trim();
-    
-    // Capitalize: Nguyen Van A
-    cleaned = cleaned
-      .toLowerCase()
-      .split(' ')
-      .filter(w => w.length > 0)
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
-      
-    // Remove accents if they want (let's keep accents by default, but we can do normalization if they select rule)
-    // There is no specific accents removal checkbox in the mockup, but we keep it clean.
-    
-    if (cleaned !== original) {
-      logs.push("Chuẩn hóa định dạng họ tên");
+    // Detect "k" abbreviation (e.g. 350k -> 350000)
+    let hasK = false;
+    let cleanStr = raw.toLowerCase().replace(/\s+/g, '');
+    if (cleanStr.endsWith('k') && /^\d+/.test(cleanStr)) {
+      hasK = true;
+      cleanStr = cleanStr.substring(0, cleanStr.length - 1);
     }
     
-    const category = (cleaned !== original) ? 'fixed' : 'valid';
-    return { value: cleaned, original, logs, category };
+    // Parse based on comma/dot thousands/decimals config
+    let numericVal = NaN;
+    const inputFmt = currencyInputFormat.value;
+    
+    if (inputFmt === 'vn') {
+      // Thousands separator: `.`, Decimal separator: `,`
+      // Clean all dots, change comma to dot
+      let temp = cleanStr.replace(/\./g, '').replace(/,/g, '.');
+      // Extract digits and decimal point
+      let numberPart = temp.replace(/[^\d.]/g, '');
+      numericVal = parseFloat(numberPart);
+    } else {
+      // Thousands separator: `,`, Decimal separator: `.`
+      // Clean commas
+      let temp = cleanStr.replace(/,/g, '');
+      let numberPart = temp.replace(/[^\d.]/g, '');
+      numericVal = parseFloat(numberPart);
+    }
+    
+    if (isNaN(numericVal)) {
+      return { value: original, original, logs: ["Không thể phân tích giá trị số"], category: 'error' };
+    }
+    
+    if (hasK) {
+      numericVal = numericVal * 1000;
+      logs.push("Quy đổi viết tắt 'k' nhân 1000");
+    }
+    
+    // Format output currency symbol
+    const outSymbol = currencyOutputSymbol.value;
+    let formatted = '';
+    
+    if (outSymbol === 'VND') {
+      formatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(numericVal);
+    } else if (outSymbol === 'USD') {
+      formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericVal);
+    } else if (outSymbol === 'EUR') {
+      formatted = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(numericVal);
+    } else {
+      // keep
+      // Try to detect symbol in original: $ or € or đ/VND
+      let lowerOrig = original.toLowerCase();
+      if (lowerOrig.includes('$') || lowerOrig.includes('usd')) {
+        formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericVal);
+      } else if (lowerOrig.includes('€') || lowerOrig.includes('eur')) {
+        formatted = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(numericVal);
+      } else {
+        formatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(numericVal);
+      }
+    }
+    
+    logs.push("Chuẩn hóa định dạng tiền tệ");
+    
+    const category = (formatted !== original) ? 'fixed' : 'valid';
+    return { value: formatted, original, logs, category };
   }
 
-  // Auto-detect item type (for raw text lists)
-  function detectType(str) {
-    const s = str.trim();
-    if (s.includes('@')) return 'email';
-    // If it has digits and fits phone patterns
-    if (/[0-9]/.test(s) && s.replace(/[^\d]/g, '').length >= 5) return 'phone';
-    return 'name';
+  // 4. Date cleaning
+  function isValidDate(d, m, y) {
+    const dateObj = new Date(y, m - 1, d);
+    return dateObj.getFullYear() === y && dateObj.getMonth() === m - 1 && dateObj.getDate() === d;
+  }
+
+  function cleanDate(val) {
+    let raw = String(val).trim();
+    let original = raw;
+    let logs = [];
+    
+    // Standardize separators to `/`
+    let cleanStr = raw.replace(/[-.]/g, '/').replace(/\s+/g, '');
+    
+    // Try to detect ISO date format first YYYY-MM-DD
+    let parts = cleanStr.split('/');
+    let d = NaN, m = NaN, y = NaN;
+    
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        // YYYY/MM/DD
+        y = parseInt(parts[0]);
+        m = parseInt(parts[1]);
+        d = parseInt(parts[2]);
+      } else {
+        // DD/MM/YYYY or MM/DD/YYYY
+        const format = dateInputFormat.value;
+        if (format === 'dmy') {
+          d = parseInt(parts[0]);
+          m = parseInt(parts[1]);
+          y = parseInt(parts[2]);
+        } else {
+          m = parseInt(parts[0]);
+          d = parseInt(parts[1]);
+          y = parseInt(parts[2]);
+        }
+      }
+    } else {
+      return { value: original, original, logs: ["Không đúng định dạng ngày (thiếu/thừa phần)"], category: 'error' };
+    }
+    
+    // Fix 2-digit years
+    if (y < 100) {
+      y = y + 2000;
+      logs.push("Sửa năm 2 chữ số");
+    }
+    
+    // Check if parts are valid numbers
+    if (isNaN(d) || isNaN(m) || isNaN(y)) {
+      return { value: original, original, logs: ["Giá trị ngày tháng không phải là số"], category: 'error' };
+    }
+    
+    // Leap year / days limit validation
+    if (!isValidDate(d, m, y)) {
+      return { value: original, original, logs: ["Ngày không tồn tại (Ví dụ: 31/02 hoặc sai tháng)"], category: 'error' };
+    }
+    
+    // Format Output
+    const outFmt = dateOutputFormat.value;
+    let formatted = '';
+    
+    const pad = (n) => String(n).padStart(2, '0');
+    
+    if (outFmt === 'yyyy-mm-dd') {
+      formatted = `${y}-${pad(m)}-${pad(d)}`;
+    } else {
+      formatted = `${pad(d)}/${pad(m)}/${y}`;
+    }
+    
+    logs.push("Chuẩn hóa định dạng ngày");
+    
+    const category = (formatted !== original) ? 'fixed' : 'valid';
+    return { value: formatted, original, logs, category };
   }
 
   // ==========================================================================
-  // --- Core Processing Loop ---
+  // --- Data Processing Pipeline ---
   // ==========================================================================
   
   function processData() {
@@ -554,223 +672,117 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let indexPhone = mapPhoneCol.value !== '' ? parseInt(mapPhoneCol.value) : -1;
     let indexEmail = mapEmailCol.value !== '' ? parseInt(mapEmailCol.value) : -1;
-    let indexName = mapNameCol.value !== '' ? parseInt(mapNameCol.value) : -1;
     
-    // 1. Gather Rows
+    // 1. Load data
     if (isFileMode) {
       rawRows = loadedFileData.map(r => [...r]);
     } else {
-      // Split raw textarea by line
-      const lines = rawTextarea.value.split(/\r?\n/);
-      rawRows = lines.map(line => {
-        // If it's standard text line but has commas/tabs, let's treat it as single text column
-        return [line.trim()];
-      });
+      const lines = rawInputText.value.split(/\r?\n/);
+      rawRows = lines.map(line => [line.trim()]);
     }
     
-    let totalInput = 0;
+    let totalItems = 0;
     let countValid = 0;
     let countFixed = 0;
-    let countDup = 0;
     let countError = 0;
+    let countDup = 0;
     
-    let seenEmails = new Set();
-    let seenPhones = new Set();
-    let seenAll = new Set();
-    
+    let seen = new Set();
     processedItemsList = [];
     
-    // Loop through each row
     rawRows.forEach((row, idx) => {
-      // Generate stable row key
-      const rowId = `row-${idx}`;
+      const itemId = `row-${idx}`;
       
-      // If row was deleted by user action, exclude it
-      if (deletedItemIds.has(rowId)) return;
+      // If deleted by user, skip
+      if (deletedItemIds.has(itemId)) return;
       
-      // Check if row is completely empty
+      // Skip empty row
       const isRowEmpty = row.every(cell => String(cell).trim() === '');
-      if (isRowEmpty) {
-        if (ruleRemoveEmpty.checked) return; // skip
-      }
+      if (isRowEmpty) return;
       
-      totalInput++;
+      totalItems++;
       
       let cleanRow = [...row];
-      let rowLogs = [];
-      let rowCategory = 'valid'; // valid, fixed, error, dup
+      let res = { value: '', original: '', logs: [], category: 'valid' };
       
-      let cleanValDisplay = '';
-      let originalValDisplay = '';
-      
-      // --- Handle Processing based on file column maps OR auto-detection ---
-      if (isFileMode) {
-        // A. File Upload columns mapped
-        let isRowValid = true;
-        let isRowFixed = false;
+      // 2. Select filter based on active tab
+      if (activeTab === 'email') {
+        // Find text or col
+        let cellVal = isFileMode && indexEmail !== -1 ? String(row[indexEmail]) : String(row[0]);
         
-        // 1. Name clean
-        if (indexName !== -1 && indexName < row.length) {
-          const res = cleanName(row[indexName]);
-          if (res.category === 'fixed') isRowFixed = true;
-          cleanRow[indexName] = res.value;
-          
-          if (!cleanValDisplay) {
-            cleanValDisplay = res.value;
-            originalValDisplay = res.original;
+        // Scan for email extraction
+        if (activeTab === 'email' && !isFileMode) {
+          // Extract emails using regex
+          const emailsFound = cellVal.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g);
+          if (emailsFound) {
+            emailsFound.forEach(email => {
+              let cleanRes = cleanEmail(email);
+              addProcessedItem(cleanRes, idx, cleanRow);
+            });
+            return; // processed internally
+          } else {
+            res = { value: cellVal, original: cellVal, logs: ["Không tìm thấy địa chỉ email"], category: 'error' };
           }
-        }
-        
-        // 2. Phone clean
-        if (indexPhone !== -1 && indexPhone < row.length) {
-          const res = cleanPhone(row[indexPhone]);
-          if (res.category === 'error') {
-            isRowValid = false;
-            rowLogs.push(...res.logs);
-          } else if (res.category === 'fixed') {
-            isRowFixed = true;
-            rowLogs.push(...res.logs);
-          }
-          cleanRow[indexPhone] = res.value;
-          
-          // Phone takes display priority
-          cleanValDisplay = res.value;
-          originalValDisplay = res.original;
-        }
-        
-        // 3. Email clean
-        if (indexEmail !== -1 && indexEmail < row.length) {
-          const res = cleanEmail(row[indexEmail]);
-          if (res.category === 'error') {
-            isRowValid = false;
-            rowLogs.push(...res.logs);
-          } else if (res.category === 'fixed') {
-            isRowFixed = true;
-            rowLogs.push(...res.logs);
-          }
+        } else {
+          // File mode mapping
+          res = cleanEmail(cellVal);
           cleanRow[indexEmail] = res.value;
-          
-          if (!cleanValDisplay || indexPhone === -1) {
-            cleanValDisplay = res.value;
-            originalValDisplay = res.original;
-          }
         }
-        
-        rowCategory = !isRowValid ? 'error' : (isRowFixed ? 'fixed' : 'valid');
-        
-      } else {
-        // B. Raw Text Area List (single item per line)
-        const cellVal = String(row[0]);
-        if (cellVal.trim() === '') {
-          rowCategory = 'empty';
-        } else {
-          const detected = detectType(cellVal);
-          let res = {};
-          if (detected === 'email') {
-            res = cleanEmail(cellVal);
-          } else if (detected === 'phone') {
-            res = cleanPhone(cellVal);
-          } else {
-            res = cleanName(cellVal);
-          }
-          
-          cleanRow[0] = res.value;
-          cleanValDisplay = res.value;
-          originalValDisplay = res.original;
-          rowLogs.push(...res.logs);
-          rowCategory = res.category;
-        }
+      } else if (activeTab === 'phone') {
+        let cellVal = isFileMode && indexPhone !== -1 ? String(row[indexPhone]) : String(row[0]);
+        res = cleanPhone(cellVal);
+        if (isFileMode && indexPhone !== -1) cleanRow[indexPhone] = res.value;
+      } else if (activeTab === 'currency') {
+        let cellVal = String(row[0]); // Simple raw parser for money
+        res = cleanCurrency(cellVal);
+      } else if (activeTab === 'date') {
+        let cellVal = String(row[0]);
+        res = cleanDate(cellVal);
       }
       
-      if (rowCategory === 'empty') {
-        if (ruleRemoveEmpty.checked) return;
-        rowCategory = 'error';
-        rowLogs = ["Dòng trống"];
+      addProcessedItem(res, idx, cleanRow);
+    });
+
+    function addProcessedItem(res, idx, cleanRow) {
+      // Deduplicate for Emails tab if checked
+      if (activeTab === 'email' && res.category !== 'error') {
+        const emailLower = res.value.toLowerCase();
+        if (seen.has(emailLower)) {
+          countDup++;
+          return; // Skip duplicate email
+        }
+        seen.add(emailLower);
       }
       
-      // --- Deduplication Checks ---
-      if (ruleDeduplicate.checked && rowCategory !== 'error') {
-        let isDup = false;
-        let dupVal = '';
-        
-        const currentEmail = (indexEmail !== -1 && isFileMode) ? String(cleanRow[indexEmail]).trim().toLowerCase() : (detectType(String(row[0])) === 'email' ? cleanRow[0].toLowerCase() : '');
-        const currentPhone = (indexPhone !== -1 && isFileMode) ? String(cleanRow[indexPhone]).trim() : (detectType(String(row[0])) === 'phone' ? cleanRow[0] : '');
-        const rowString = cleanRow.join('|').toLowerCase();
-        
-        const crit = dedupCriteria.value;
-        
-        if (crit === 'email' && currentEmail !== '') {
-          if (seenEmails.has(currentEmail)) {
-            isDup = true;
-            dupVal = `Email: ${currentEmail}`;
-          } else {
-            seenEmails.add(currentEmail);
-          }
-        } else if (crit === 'phone' && currentPhone !== '') {
-          if (seenPhones.has(currentPhone)) {
-            isDup = true;
-            dupVal = `SĐT: ${currentPhone}`;
-          } else {
-            seenPhones.add(currentPhone);
-          }
-        } else if (crit === 'any') {
-          if (currentEmail !== '' && seenEmails.has(currentEmail)) {
-            isDup = true;
-            dupVal = `Email: ${currentEmail}`;
-          }
-          if (currentPhone !== '' && seenPhones.has(currentPhone)) {
-            isDup = true;
-            dupVal = `SĐT: ${currentPhone}`;
-          }
-          
-          if (!isDup) {
-            if (currentEmail !== '') seenEmails.add(currentEmail);
-            if (currentPhone !== '') seenPhones.add(currentPhone);
-          }
-        } else {
-          // 'all'
-          if (seenAll.has(rowString)) {
-            isDup = true;
-            dupVal = "Trùng lặp dòng";
-          } else {
-            seenAll.add(rowString);
-          }
-        }
-        
-        if (isDup) {
-          rowCategory = 'dup';
-          rowLogs = [`Trùng lặp (${dupVal})`];
-        }
-      }
-      
-      // Increment Stat Counters
-      if (rowCategory === 'dup') {
-        countDup++;
-      } else if (rowCategory === 'error') {
+      // Increment stats
+      if (res.category === 'error') {
         countError++;
-      } else if (rowCategory === 'fixed') {
+      } else if (res.category === 'fixed') {
         countFixed++;
-      } else if (rowCategory === 'valid') {
+      } else if (res.category === 'valid') {
         countValid++;
       }
       
-      // Store in state
       processedItemsList.push({
-        id: rowId,
+        id: `row-${idx}-${processedItemsList.length}`,
         cleanRow,
-        cleanValDisplay,
-        originalValDisplay,
-        logs: rowLogs,
-        category: rowCategory
+        cleanValDisplay: res.value,
+        originalValDisplay: res.original,
+        logs: res.logs,
+        category: res.category
       });
-    });
+    }
     
-    // Update Stats Display
-    statTotal.textContent = totalInput;
-    statValid.textContent = countValid;
-    statFixed.textContent = countFixed;
-    statDup.textContent = countDup;
-    statError.textContent = countError;
+    // Update stats widgets
+    statVal1.textContent = totalItems;
+    statVal2.textContent = countValid;
+    statVal3.textContent = countFixed;
+    
+    if (activeTab === 'email') {
+      statVal4.textContent = countDup + countError;
+    } else {
+      statVal4.textContent = countError;
+    }
     
     renderTable();
   }
@@ -784,19 +796,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const query = searchInput.value.trim().toLowerCase();
     
-    // Filter out duplicates from display (matching user mockup: duplicates are removed, warnings are shown)
-    // E.g., showing only valid, fixed, and errors
+    // Apply search query
     const visibleList = processedItemsList.filter(item => {
-      if (item.category === 'dup') return false; // Hide duplicates
-      
-      // Apply Search Filter
       if (query !== '') {
         const matchesClean = item.cleanValDisplay.toLowerCase().includes(query);
         const matchesOriginal = item.originalValDisplay.toLowerCase().includes(query);
-        const matchesError = item.logs.join(' ').toLowerCase().includes(query);
-        return matchesClean || matchesOriginal || matchesError;
+        const matchesLogs = item.logs.join(' ').toLowerCase().includes(query);
+        return matchesClean || matchesOriginal || matchesLogs;
       }
-      
       return true;
     });
     
@@ -804,7 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsTableBody.innerHTML = `
         <tr>
           <td colspan="5" class="empty-table-state">
-            ${processedItemsList.length === 0 ? 'Nhập dữ liệu vào ô bên trái để hiển thị kết quả.' : 'Không tìm thấy kết quả phù hợp.'}
+            ${processedItemsList.length === 0 ? 'Nạp dữ liệu mẫu hoặc dán văn bản để xem kết quả.' : 'Không tìm thấy kết quả phù hợp.'}
           </td>
         </tr>
       `;
@@ -819,10 +826,11 @@ document.addEventListener('DOMContentLoaded', () => {
       tdIdx.textContent = index + 1;
       tr.appendChild(tdIdx);
       
-      // 2. Cleaned value vs original
+      // 2. Value cleaned vs original (color-coded for validity)
       const tdVal = document.createElement('td');
+      const isErr = (item.category === 'error');
       tdVal.innerHTML = `
-        <span class="col-clean-val">${item.cleanValDisplay || '-'}</span>
+        <span class="col-clean-val ${isErr ? 'red' : 'green'}">${item.cleanValDisplay || '-'}</span>
         <span class="col-orig-val">${item.originalValDisplay || '-'}</span>
       `;
       tr.appendChild(tdVal);
@@ -830,10 +838,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // 3. Status Badge
       const tdStatus = document.createElement('td');
       tdStatus.style.textAlign = 'center';
-      
       if (item.category === 'error') {
-        // Red split badge for "CẢNH BÁO"
-        tdStatus.innerHTML = `<span class="badge-warning-wrap"><span>CẢNH</span><span>BÁO</span></span>`;
+        tdStatus.innerHTML = `<span class="badge badge-error">LỖI / SAI</span>`;
       } else if (item.category === 'fixed') {
         tdStatus.innerHTML = `<span class="badge badge-fixed">ĐÃ SỬA</span>`;
       } else {
@@ -841,22 +847,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       tr.appendChild(tdStatus);
       
-      // 4. Log modification details
+      // 4. Logs
       const tdLogs = document.createElement('td');
       tdLogs.className = 'col-log-desc';
       if (item.category === 'error') {
         tdLogs.textContent = item.logs.join(', ');
-        tdLogs.style.color = '#f87171'; // Red highlight for warning details
+        tdLogs.style.color = '#ef4444';
       } else if (item.category === 'fixed') {
         tdLogs.textContent = item.logs.join(', ');
-        tdLogs.style.color = '#fbbf24'; // Yellow highlight for fixes
+        tdLogs.style.color = '#f59e0b';
       } else {
         tdLogs.textContent = 'Hợp lệ';
-        tdLogs.style.color = '#a0aec0';
+        tdLogs.style.color = '#64748b';
       }
       tr.appendChild(tdLogs);
       
-      // 5. Actions: Copy and Delete
+      // 5. Action buttons
       const tdActions = document.createElement('td');
       tdActions.innerHTML = `
         <div class="action-cell">
@@ -873,7 +879,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
       
-      // Bind inline action events
       tdActions.querySelector('.btn-copy').onclick = () => {
         navigator.clipboard.writeText(item.cleanValDisplay);
         showTemporaryFeedback(tdActions.querySelector('.btn-copy'), 'Copied');
@@ -881,7 +886,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       tdActions.querySelector('.btn-delete').onclick = () => {
         deletedItemIds.add(item.id);
-        processData(); // re-process list to exclude this item
+        processData();
       };
       
       tr.appendChild(tdActions);
@@ -898,23 +903,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================================================
-  // --- Toolbar Actions (Copy All & File Exporters) ---
+  // --- Export Actions (Copy All & File Exporters) ---
   // ==========================================================================
   
-  // Copy All button
+  // Copy All cleaned items
   btnCopyAll.addEventListener('click', () => {
-    // Get all cleaned items that are NOT errors or duplicates
     const cleanItems = processedItemsList
       .filter(item => item.category === 'valid' || item.category === 'fixed')
       .map(item => item.cleanValDisplay);
       
     if (cleanItems.length === 0) {
-      alert('Không có dữ liệu sạch nào để sao chép!');
+      alert('Không có dữ liệu hợp lệ để sao chép!');
       return;
     }
     
-    const textToCopy = cleanItems.join('\n');
-    navigator.clipboard.writeText(textToCopy).then(() => {
+    navigator.clipboard.writeText(cleanItems.join('\n')).then(() => {
       const originalText = btnCopyAll.innerHTML;
       btnCopyAll.innerHTML = '✓ Đã Copy Hết!';
       btnCopyAll.style.backgroundColor = '#10b981';
@@ -932,23 +935,20 @@ document.addEventListener('DOMContentLoaded', () => {
       .map(item => item.cleanValDisplay);
       
     if (cleanItems.length === 0) {
-      alert('Không có dữ liệu sạch để xuất!');
+      alert('Không có dữ liệu hợp lệ!');
       return;
     }
-    
-    const content = cleanItems.join('\n');
-    downloadBlob(content, 'text/plain', 'data_cleaned.txt');
+    downloadBlob(cleanItems.join('\n'), 'text/plain', `data_${activeTab}_cleaned.txt`);
   });
 
   // Export CSV
   btnExportCSV.addEventListener('click', () => {
-    // Collect headers and clean rows
     const cleanRows = processedItemsList
       .filter(item => item.category === 'valid' || item.category === 'fixed')
       .map(item => item.cleanRow);
       
     if (cleanRows.length === 0) {
-      alert('Không có dữ liệu sạch để xuất!');
+      alert('Không có dữ liệu hợp lệ!');
       return;
     }
     
@@ -956,58 +956,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loadedFileData) {
       csvData = [loadedFileHeaders, ...cleanRows];
     } else {
-      // Manual mode raw output
-      csvData = [['Dữ liệu sạch'], ...cleanRows];
+      csvData = [[`Dữ liệu sạch (${activeTab})`], ...cleanRows];
     }
     
     const content = Papa.unparse(csvData);
-    downloadBlob("\uFEFF" + content, 'text/csv;charset=utf-8;', 'data_cleaned.csv');
-  });
-
-  // Export Excel (.xlsx) via SheetJS
-  btnExportXLSX.addEventListener('click', () => {
-    const cleanRows = processedItemsList
-      .filter(item => item.category === 'valid' || item.category === 'fixed')
-      .map(item => item.cleanRow);
-      
-    if (cleanRows.length === 0) {
-      alert('Không có dữ liệu sạch để xuất!');
-      return;
-    }
-    
-    let xlsxData = [];
-    if (loadedFileData) {
-      xlsxData = [loadedFileHeaders, ...cleanRows];
-    } else {
-      xlsxData = [['Dữ liệu sạch'], ...cleanRows];
-    }
-
-    try {
-      const sheet = XLSX.utils.aoa_to_sheet(xlsxData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, sheet, "Data Cleaned");
-      
-      // Auto-fit column widths
-      sheet['!cols'] = xlsxData[0].map((_, colIdx) => {
-        let maxLen = 10;
-        xlsxData.forEach(row => {
-          const val = row[colIdx] !== undefined ? String(row[colIdx]) : '';
-          if (val.length > maxLen) maxLen = val.length;
-        });
-        return { wch: maxLen + 2 };
-      });
-      
-      let exportName = 'data_cleaned.xlsx';
-      if (currentFileName) {
-        const parts = currentFileName.split('.');
-        parts.pop();
-        exportName = parts.join('.') + '_cleaned.xlsx';
-      }
-      
-      XLSX.writeFile(workbook, exportName);
-    } catch (err) {
-      alert('Không thể xuất tệp Excel: ' + err.message);
-    }
+    downloadBlob("\uFEFF" + content, 'text/csv;charset=utf-8;', `data_${activeTab}_cleaned.csv`);
   });
 
   function downloadBlob(content, type, defaultName) {
@@ -1031,19 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.removeChild(link);
   }
 
-  // --- Initial run ---
-  // Load sample data into rawTextarea initially to match the screenshot representation!
-  rawTextarea.value = `0904020011
-090.402.0011
-090 402 0011
-0904 020 011
-+84904020011
-(+84)904 020 011
-090-402-0011
-09040200111
-090402001
-904020011`;
-  
-  updateCharCount();
+  // --- Initial Launch Setup ---
+  updateStatsLabels();
   processData();
 });

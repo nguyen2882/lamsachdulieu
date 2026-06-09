@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bộ Lọc & Làm Sạch Dữ Liệu Email, SĐT, Họ Tên</title>
-  <meta name="description" content="Công cụ làm sạch, chuẩn hóa số điện thoại, email và họ tên tự động bằng AI, bảo mật trực tiếp trên trình duyệt.">
+  <title>Ứng Dụng Trích Xuất & Chuẩn Hóa Dữ Liệu Đa Năng</title>
+  <meta name="description" content="Công cụ trích xuất email, chuẩn hóa số điện thoại, tiền tệ và ngày tháng chuyên nghiệp.">
   
   <!-- Google Fonts - Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,230 +16,223 @@
 </head>
 <body>
 
-  <!-- Decorative background elements -->
+  <!-- Decorative background glow -->
   <div class="glow-bg"></div>
 
   <div class="app-container">
     
-    <!-- Workspace Layout Grid -->
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <h1>Extractor & Standardizer</h1>
+          <p>Trích xuất & Chuẩn hóa Dữ liệu đa năng • Xanh Lá Edition</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Task Selector Tabs -->
+    <nav class="task-tabs">
+      <button class="tab-link active" data-task="email">
+        📧 Trích xuất Email
+      </button>
+      <button class="tab-link" data-task="phone">
+        📱 Chuẩn hóa SĐT
+      </button>
+      <button class="tab-link" data-task="currency">
+        💵 Chuẩn hóa Tiền tệ
+      </button>
+      <button class="tab-link" data-task="date">
+        📅 Chuẩn hóa Ngày tháng
+      </button>
+    </nav>
+
+    <!-- Workspace Grid Layout -->
     <div class="workspace-grid">
       
-      <!-- LEFT COLUMN: Input & Rules -->
+      <!-- LEFT COLUMN: Input & Configs -->
       <div class="left-column">
         
-        <!-- Raw Input Card -->
-        <div class="card input-card">
+        <!-- Task Dashboard Card -->
+        <div class="card task-card">
           <div class="card-header">
-            <h3 class="card-title">Dữ liệu văn bản thô</h3>
-            <span class="char-count-badge" id="charCount">0 ký tự</span>
+            <h3 class="card-title" id="activeTaskTitle">Tác vụ: Trích xuất Email</h3>
           </div>
           
-          <div class="textarea-wrapper">
-            <textarea id="rawTextarea" placeholder="Dán danh sách Số điện thoại, Email hoặc Họ tên cần chuẩn hóa vào đây...&#10;Ví dụ:&#10;0904020011&#10;090.402.0011&#10;090 402 0011&#10;(+84)904 020 011&#10;nguYenvAna@gmâil.cơm&#10;tran thi b, 01689998888, tranthib@yopmail.com"></textarea>
+          <!-- Short Instructions Box -->
+          <div class="instructions-box">
+            <p id="taskInstructions">Hướng dẫn: Trích xuất toàn bộ các địa chỉ email có mặt trong văn bản thô, làm sạch định dạng, sửa các lỗi Telex và xuất danh sách duy nhất không trùng lặp.</p>
           </div>
-          
-          <!-- Embedded File Dropzone -->
+
+          <!-- Dummy Data Loader Button -->
+          <div class="dummy-loader-wrapper">
+            <button id="btnLoadDummy" class="btn btn-dummy">
+              ⚡ Nạp dữ liệu mẫu thử nghiệm
+            </button>
+          </div>
+
+          <!-- Task Specific Configurations -->
+          <div class="config-section">
+            
+            <!-- Email Specific configs -->
+            <div id="configEmail" class="task-config-pane active">
+              <label class="custom-checkbox-container">
+                <input type="checkbox" id="ruleEmailTelex" checked>
+                <span class="checkmark"></span>
+                <div class="checkbox-label">
+                  <strong>Tự động sửa lỗi Telex ở đuôi miền</strong>
+                  <p>Ví dụ: .cơm &rarr; .com, .gmâil &rarr; gmail, .vớn &rarr; .vn</p>
+                </div>
+              </label>
+              <label class="custom-checkbox-container">
+                <input type="checkbox" id="ruleEmailLowercase" checked>
+                <span class="checkmark"></span>
+                <div class="checkbox-label">
+                  <strong>Chuyển về chữ thường (lowercase)</strong>
+                </div>
+              </label>
+              <label class="custom-checkbox-container">
+                <input type="checkbox" id="ruleEmailValidate" checked>
+                <span class="checkmark"></span>
+                <div class="checkbox-label">
+                  <strong>Loại bỏ email không đúng cấu trúc</strong>
+                </div>
+              </label>
+            </div>
+
+            <!-- Phone Specific configs -->
+            <div id="configPhone" class="task-config-pane">
+              <label class="custom-checkbox-container">
+                <input type="checkbox" id="rulePhoneConvertOld" checked>
+                <span class="checkmark"></span>
+                <div class="checkbox-label">
+                  <strong>Đổi đầu số di động VN cũ sang mới (11 &rarr; 10 số)</strong>
+                  <p>Ví dụ: 0168 &rarr; 038, 0122 &rarr; 077, 0123 &rarr; 083...</p>
+                </div>
+              </label>
+              <label class="custom-checkbox-container">
+                <input type="checkbox" id="rulePhoneFormat" checked>
+                <span class="checkmark"></span>
+                <div class="checkbox-label">
+                  <strong>Định dạng mã quốc gia đầu ra</strong>
+                </div>
+              </label>
+              <div class="sub-option" id="phoneFormatSelectContainer">
+                <label for="phoneFormat">Định dạng SĐT đầu ra:</label>
+                <select id="phoneFormat" class="select-control">
+                  <option value="prefix_0" selected>Bắt đầu bằng 0 (Ví dụ: 0904020011)</option>
+                  <option value="prefix_84">Bắt đầu bằng 84 (Ví dụ: 84904020011)</option>
+                  <option value="prefix_plus84">Bắt đầu bằng +84 (Ví dụ: +84904020011)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Currency Specific configs -->
+            <div id="configCurrency" class="task-config-pane">
+              <div class="form-group">
+                <label for="currencyInputFormat" class="form-label">Định dạng đầu vào thiết lập:</label>
+                <select id="currencyInputFormat" class="select-control w-100">
+                  <option value="vn" selected>Việt Nam (dùng dấu . phân tách nghìn, dấu , phân tách thập phân)</option>
+                  <option value="intl">Quốc tế (dùng dấu , phân tách nghìn, dấu . phân tách thập phân)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="currencyOutputSymbol" class="form-label">Đồng tiền đầu ra:</label>
+                <select id="currencyOutputSymbol" class="select-control w-100">
+                  <option value="VND" selected>Việt Nam Đồng (₫)</option>
+                  <option value="USD">Đô la Mỹ ($)</option>
+                  <option value="EUR">Euro (€)</option>
+                  <option value="keep">Giữ nguyên ký hiệu nhận dạng gốc</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Date Specific configs -->
+            <div id="configDate" class="task-config-pane">
+              <div class="form-group">
+                <label for="dateInputFormat" class="form-label">Thứ tự nhận diện ngày/tháng đầu vào:</label>
+                <select id="dateInputFormat" class="select-control w-100">
+                  <option value="dmy" selected>Ngày-Tháng-Năm (Ví dụ: 02/03/2023 &rarr; Ngày 2 tháng 3)</option>
+                  <option value="mdy">Tháng-Ngày-Năm (Ví dụ: 02/03/2023 &rarr; Ngày 3 tháng 2)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-top: 12px;">
+                <label for="dateOutputFormat" class="form-label">Định dạng ngày đầu ra:</label>
+                <select id="dateOutputFormat" class="select-control w-100">
+                  <option value="yyyy-mm-dd" selected>Chuẩn ISO (YYYY-MM-DD) (Ví dụ: 2023-03-02)</option>
+                  <option value="dd/mm/yyyy">Định dạng Việt Nam (DD/MM/YYYY) (Ví dụ: 02/03/2023)</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Raw Input Textarea -->
+          <div class="input-area-wrapper">
+            <label for="rawInputText" class="form-label">Nhập dữ liệu đầu vào:</label>
+            <span class="char-badge" id="charCounter">0 ký tự</span>
+            <textarea id="rawInputText" placeholder="Nhập hoặc dán văn bản thô vào đây..."></textarea>
+          </div>
+
+          <!-- File upload drag & drop area -->
           <div id="dropzone" class="dropzone-area">
-            <input type="file" id="fileInput" accept=".txt, .csv, .xlsx, .xls, .log" style="display: none;">
+            <input type="file" id="fileInput" accept=".txt, .csv" style="display: none;">
             <div class="dropzone-content">
               <span class="upload-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
                 </svg>
               </span>
-              <p class="dropzone-text">Kéo & thả file dữ liệu thô tại đây</p>
-              <p class="dropzone-sub">Hỗ trợ file văn bản (.txt, .csv, .json, .log, .xlsx)</p>
+              <p>Kéo & thả file (.txt, .csv) hoặc click để chọn file</p>
             </div>
           </div>
           
-          <!-- Selected File Info (Displays when a file is loaded) -->
-          <div id="selectedFileInfo" class="selected-file-info" style="display: none;">
+          <div id="fileInfoBox" class="selected-file-info" style="display: none;">
             <span class="file-icon">📄</span>
             <div class="file-details">
-              <h4 id="selectedFileName">file_data.xlsx</h4>
-              <p id="selectedFileSize">0 KB</p>
+              <h4 id="fileNameText">data.txt</h4>
+              <p id="fileSizeText">0 KB</p>
             </div>
-            <button id="removeFileBtn" class="btn-remove" title="Xóa tệp này">&times;</button>
-          </div>
-
-          <!-- Column Mapping Selector (Hidden unless Excel/CSV contains columns) -->
-          <div id="columnMappingSection" class="column-mapping-section" style="display: none;">
-            <h4>Liên kết cột dữ liệu</h4>
-            <div class="mapping-grid">
-              <div class="mapping-item">
-                <label for="mapPhoneCol">Cột Số Điện Thoại:</label>
-                <select id="mapPhoneCol" class="select-control col-map-select"><option value="">-- Bỏ qua --</option></select>
-              </div>
-              <div class="mapping-item">
-                <label for="mapEmailCol">Cột Email:</label>
-                <select id="mapEmailCol" class="select-control col-map-select"><option value="">-- Bỏ qua --</option></select>
-              </div>
-              <div class="mapping-item">
-                <label for="mapNameCol">Cột Họ Tên:</label>
-                <select id="mapNameCol" class="select-control col-map-select"><option value="">-- Bỏ qua --</option></select>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Rules Card: Email -->
-        <div class="card rules-card">
-          <div class="card-header">
-            <h3 class="card-title">Quy Tắc Tự Động Sửa Lỗi Email</h3>
-          </div>
-          <div class="rules-list">
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="ruleEmailTelex" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Sửa lỗi Telex & dấu Tiếng Việt</strong>
-                <p>Xóa các dấu thanh hoặc ký tự Telex sai ở đuôi miền (ví dụ: .cơm &rarr; .com, .gmâil &rarr; gmail)</p>
-              </div>
-            </label>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="ruleEmailLowercase" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Chuyển về chữ thường (lowercase)</strong>
-                <p>Tránh phân biệt chữ hoa chữ thường</p>
-              </div>
-            </label>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="ruleEmailValidate" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Kiểm tra định dạng email hợp lệ</strong>
-                <p>Loại bỏ các email sai cấu trúc Regex</p>
-              </div>
-            </label>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="ruleEmailFilterDisposable" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Lọc email ảo / email tạm thời</strong>
-                <p>Loại bỏ email từ các tên miền yopmail, temp-mail...</p>
-              </div>
-            </label>
+            <button id="btnRemoveFile" class="btn-remove" title="Hủy bỏ tệp này">&times;</button>
           </div>
         </div>
 
-        <!-- Rules Card: Phone -->
-        <div class="card rules-card">
-          <div class="card-header">
-            <h3 class="card-title">Quy Tắc Tự Động Sửa Lỗi Số Điện Thoại</h3>
-          </div>
-          <div class="rules-list">
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="rulePhoneDigitsOnly" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Chỉ giữ lại chữ số</strong>
-                <p>Xóa dấu cách, dấu chấm, dấu gạch ngang, ngoặc đơn</p>
-              </div>
-            </label>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="rulePhoneConvertOldPrefix" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Đổi đầu số di động cũ sang mới (VN)</strong>
-                <p>Ví dụ: 0168 &rarr; 038, 0122 &rarr; 077, 0123 &rarr; 083...</p>
-              </div>
-            </label>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="rulePhoneCountryCode" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Chuẩn hóa mã quốc gia (+84)</strong>
-                <p>Đổi số bắt đầu bằng 0 thành mã quốc gia được cấu hình bên dưới</p>
-              </div>
-            </label>
-            <div class="sub-option" id="phoneFormatSelectContainer">
-              <label for="phoneFormat">Định dạng SĐT đầu ra:</label>
-              <select id="phoneFormat" class="select-control">
-                <option value="prefix_0" selected>Bắt đầu bằng 0 (Ví dụ: 0904020011)</option>
-                <option value="prefix_84">Bắt đầu bằng 84 (Ví dụ: 84904020011)</option>
-                <option value="prefix_plus84">Bắt đầu bằng +84 (Ví dụ: +84904020011)</option>
-              </select>
-            </div>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="rulePhoneValidate" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Cảnh báo Số điện thoại không hợp lệ</strong>
-                <p>Đánh dấu đỏ nếu độ dài SĐT không đủ 10 số (hoặc sai đầu số di động VN)</p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Rules Card: Deduplicate -->
-        <div class="card rules-card">
-          <div class="card-header">
-            <h3 class="card-title">Quy Tắc Lọc Trùng Lặp</h3>
-          </div>
-          <div class="rules-list">
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="ruleDeduplicate" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Loại bỏ dữ liệu trùng lặp</strong>
-                <p>Chỉ giữ lại dòng xuất hiện đầu tiên của bản ghi</p>
-              </div>
-            </label>
-            <div class="sub-option" id="dupColumnSelectContainer">
-              <label for="dedupCriteria">Tiêu chí trùng lặp dựa trên:</label>
-              <select id="dedupCriteria" class="select-control">
-                <option value="any" selected>Trùng SĐT hoặc Email</option>
-                <option value="phone">Chỉ trùng SĐT</option>
-                <option value="email">Chỉ trùng Email</option>
-                <option value="all">Trùng toàn bộ cột của dòng</option>
-              </select>
-            </div>
-            <label class="custom-checkbox-container">
-              <input type="checkbox" id="ruleRemoveEmpty" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Xóa các dòng trống</strong>
-                <p>Bỏ qua các dòng không có bất kỳ thông tin nào</p>
-              </div>
-            </label>
-          </div>
-        </div>
       </div>
       
       <!-- RIGHT COLUMN: Stats & Results -->
       <div class="right-column">
         
-        <!-- 5 Stats Metrics Cards Row -->
+        <!-- Dynamic Statistics Widget -->
         <div class="stats-row">
-          <div class="stat-box stat-total">
-            <p class="stat-title">TỔNG TÌM THẤY</p>
-            <h2 class="stat-value" id="statTotal">0</h2>
+          <div class="stat-box stat-1">
+            <p class="stat-title" id="statTitle1">TỔNG DÒNG</p>
+            <h2 class="stat-value" id="statVal1">0</h2>
           </div>
-          <div class="stat-box stat-valid">
-            <p class="stat-title">HỢP LỆ</p>
-            <h2 class="stat-value" id="statValid">0</h2>
+          <div class="stat-box stat-2">
+            <p class="stat-title" id="statTitle2">HỢP LỆ</p>
+            <h2 class="stat-value text-green" id="statVal2">0</h2>
           </div>
-          <div class="stat-box stat-fixed">
-            <p class="stat-title">ĐÃ SỬA LỖI</p>
-            <h2 class="stat-value" id="statFixed">0</h2>
+          <div class="stat-box stat-3">
+            <p class="stat-title" id="statTitle3">ĐÃ SỬA LỖI</p>
+            <h2 class="stat-value text-orange" id="statVal3">0</h2>
           </div>
-          <div class="stat-box stat-dup">
-            <p class="stat-title">TRÙNG LẶP</p>
-            <h2 class="stat-value" id="statDup">0</h2>
-          </div>
-          <div class="stat-box stat-error">
-            <p class="stat-title">LỖI SỐ</p>
-            <h2 class="stat-value" id="statError">0</h2>
+          <div class="stat-box stat-4">
+            <p class="stat-title" id="statTitle4">TRÙNG LẶP / LỖI</p>
+            <h2 class="stat-value text-red" id="statVal4">0</h2>
           </div>
         </div>
-        
-        <!-- Results Card -->
+
+        <!-- Results Card panel -->
         <div class="card results-card">
           <div class="results-header">
             <h3 class="card-title">Danh Sách Kết Quả</h3>
             
-            <!-- Live Search input -->
+            <!-- Live Search -->
             <div class="search-wrapper">
               <span class="search-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -249,8 +242,8 @@
               <input type="text" id="searchInput" placeholder="Tìm kiếm kết quả...">
             </div>
           </div>
-          
-          <!-- Actions Toolbar -->
+
+          <!-- Actions Toolbar buttons -->
           <div class="actions-toolbar">
             <button id="btnCopyAll" class="btn btn-copy-all">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
@@ -270,21 +263,15 @@
               </svg>
               Tải CSV
             </button>
-            <button id="btnExportXLSX" class="btn btn-outline">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-              </svg>
-              Tải Excel
-            </button>
           </div>
-          
-          <!-- Table Results Preview -->
+
+          <!-- Cleaned Items Table -->
           <div class="table-responsive">
             <table class="results-table">
               <thead>
                 <tr>
                   <th style="width: 60px;">STT</th>
-                  <th>Số Điện Thoại Sạch / Dữ Liệu Sạch</th>
+                  <th>Dữ Liệu Đã Chuẩn Hóa</th>
                   <th style="width: 100px; text-align: center;">Trạng Thái</th>
                   <th>Nội dung sửa đổi / Lỗi</th>
                   <th style="width: 90px; text-align: center;">Hành Động</th>
@@ -292,21 +279,27 @@
               </thead>
               <tbody id="resultsTableBody">
                 <tr>
-                  <td colspan="5" class="empty-table-state">Nhập dữ liệu vào ô bên trái để hiển thị kết quả.</td>
+                  <td colspan="5" class="empty-table-state">Nạp dữ liệu mẫu hoặc dán văn bản để xem kết quả.</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+
       </div>
+
     </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 Extractor & Standardizer. Thiết kế giao diện màu xanh lá cây (#1a7a4a) tối giản & bảo mật.</p>
+    </footer>
+
   </div>
 
-  <!-- PapaParse Library for CSV Parse -->
+  <!-- PapaParse for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <!-- SheetJS Library for Excel Read/Write -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- App JavaScript Logic -->
+  <!-- Main Logic script -->
   <script src="app.js"></script>
 </body>
 </html>
