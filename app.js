@@ -1,84 +1,67 @@
 /* ==========================================================================
-   DATACLEANER PRO - CORE JAVASCRIPT LOGIC
+   DATACLEANER PRO - DYNAMIC & REAL-TIME LOGIC
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- UI Elements ---
-  const body = document.body;
-  const themeToggle = document.getElementById('themeToggle');
-  const sunIcon = themeToggle.querySelector('.sun-icon');
-  const moonIcon = themeToggle.querySelector('.moon-icon');
-
-  const tabBtnFile = document.getElementById('tabBtnFile');
-  const tabBtnRaw = document.getElementById('tabBtnRaw');
-  const panelFile = document.getElementById('panelFile');
-  const panelRaw = document.getElementById('panelRaw');
-
+  const rawTextarea = document.getElementById('rawTextarea');
+  const charCount = document.getElementById('charCount');
+  
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
-  const browseBtn = document.getElementById('browseBtn');
   const selectedFileInfo = document.getElementById('selectedFileInfo');
   const selectedFileName = document.getElementById('selectedFileName');
   const selectedFileSize = document.getElementById('selectedFileSize');
   const removeFileBtn = document.getElementById('removeFileBtn');
-
-  const rawTextarea = document.getElementById('rawTextarea');
-  const clearRawTextBtn = document.getElementById('clearRawTextBtn');
-  const loadExampleBtn = document.getElementById('loadExampleBtn');
-
+  
   const columnMappingSection = document.getElementById('columnMappingSection');
-  const mapNameCol = document.getElementById('mapNameCol');
   const mapPhoneCol = document.getElementById('mapPhoneCol');
   const mapEmailCol = document.getElementById('mapEmailCol');
+  const mapNameCol = document.getElementById('mapNameCol');
   const colMapSelects = document.querySelectorAll('.col-map-select');
-
-  const btnProcess = document.getElementById('btnProcess');
-  const processBtnText = document.getElementById('processBtnText');
-  const spinner = btnProcess.querySelector('.spinner');
-  const iconSparkles = btnProcess.querySelector('.icon-sparkles');
-
+  
   // Rules checkboxes
-  const ruleNameCapitalize = document.getElementById('ruleNameCapitalize');
-  const ruleNameTrim = document.getElementById('ruleNameTrim');
-  const ruleNameNoAccents = document.getElementById('ruleNameNoAccents');
-  const rulePhoneDigitsOnly = document.getElementById('rulePhoneDigitsOnly');
-  const rulePhoneCountryCode = document.getElementById('rulePhoneCountryCode');
-  const phoneFormat = document.getElementById('phoneFormat');
-  const phoneFormatSelectContainer = document.getElementById('phoneFormatSelectContainer');
-  const rulePhoneConvertOldPrefix = document.getElementById('rulePhoneConvertOldPrefix');
-  const rulePhoneValidate = document.getElementById('rulePhoneValidate');
+  const ruleEmailTelex = document.getElementById('ruleEmailTelex');
   const ruleEmailLowercase = document.getElementById('ruleEmailLowercase');
   const ruleEmailValidate = document.getElementById('ruleEmailValidate');
   const ruleEmailFilterDisposable = document.getElementById('ruleEmailFilterDisposable');
+  
+  const rulePhoneDigitsOnly = document.getElementById('rulePhoneDigitsOnly');
+  const rulePhoneConvertOldPrefix = document.getElementById('rulePhoneConvertOldPrefix');
+  const rulePhoneCountryCode = document.getElementById('rulePhoneCountryCode');
+  const phoneFormat = document.getElementById('phoneFormat');
+  const phoneFormatSelectContainer = document.getElementById('phoneFormatSelectContainer');
+  const rulePhoneValidate = document.getElementById('rulePhoneValidate');
+  
   const ruleDeduplicate = document.getElementById('ruleDeduplicate');
   const dedupCriteria = document.getElementById('dedupCriteria');
   const dupColumnSelectContainer = document.getElementById('dupColumnSelectContainer');
   const ruleRemoveEmpty = document.getElementById('ruleRemoveEmpty');
-
-  // Results elements
-  const resultsDashboard = document.getElementById('resultsDashboard');
-  const statTotalRows = document.getElementById('statTotalRows');
-  const statValidRows = document.getElementById('statValidRows');
-  const statFixedRows = document.getElementById('statFixedRows');
-  const statInvalidRows = document.getElementById('statInvalidRows');
-  const statDupsRemoved = document.getElementById('statDupsRemoved');
   
-  const chartCircleProgress = document.getElementById('chartCircleProgress');
-  const chartPercentage = document.getElementById('chartPercentage');
-  const pctClean = document.getElementById('pctClean');
-  const pctDirty = document.getElementById('pctDirty');
+  // Stats
+  const statTotal = document.getElementById('statTotal');
+  const statValid = document.getElementById('statValid');
+  const statFixed = document.getElementById('statFixed');
+  const statDup = document.getElementById('statDup');
+  const statError = document.getElementById('statError');
   
-  const logsContainer = document.getElementById('logsContainer');
-  const previewTableBody = document.getElementById('previewTableBody');
+  // Results & Table
+  const searchInput = document.getElementById('searchInput');
+  const btnCopyAll = document.getElementById('btnCopyAll');
+  const btnExportTXT = document.getElementById('btnExportTXT');
   const btnExportCSV = document.getElementById('btnExportCSV');
   const btnExportXLSX = document.getElementById('btnExportXLSX');
+  const resultsTableBody = document.getElementById('resultsTableBody');
 
   // --- App State ---
-  let activeTab = 'file'; // 'file' or 'raw'
-  let loadedFileData = null; // Stores the parsed array of arrays representing the file
-  let loadedFileHeaders = []; // Stores column headers
-  let cleanedData = []; // Cleaned rows for export
+  let loadedFileData = null; // CSV/Excel parsed array of arrays
+  let loadedFileHeaders = [];
   let currentFileName = '';
+  
+  // The final processed list of items currently displayed
+  let processedItemsList = []; 
+  // Cache of deleted row IDs to exclude them from calculations and displays
+  let deletedItemIds = new Set(); 
 
   // Disposable email domains list
   const disposableEmailDomains = new Set([
@@ -89,144 +72,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Old VN phone prefix mapping (11 digits -> 10 digits)
   const vnPhonePrefixMap = {
-    // Viettel
     '0162': '032', '0163': '033', '0164': '034', '0165': '035', 
     '0166': '036', '0167': '037', '0168': '038', '0169': '039',
-    // Mobifone
     '0120': '070', '0121': '079', '0122': '077', '0126': '076', '0128': '078',
-    // Vinaphone
     '0123': '083', '0124': '084', '0125': '085', '0127': '081', '0129': '082',
-    // Vietnamobile
     '0186': '056', '0188': '058',
-    // Gmobile
     '0199': '059'
   };
 
   // ==========================================================================
-  // --- Theme Toggle Handler ---
+  // --- Initialization & Event Bindings ---
   // ==========================================================================
-  const saveTheme = (theme) => {
-    localStorage.setItem('theme', theme);
-  };
-
-  const getSavedTheme = () => {
-    return localStorage.getItem('theme');
-  };
-
-  const applyTheme = (theme) => {
-    if (theme === 'dark') {
-      body.classList.add('dark-theme');
-      sunIcon.style.display = 'none';
-      moonIcon.style.display = 'block';
-    } else {
-      body.classList.remove('dark-theme');
-      sunIcon.style.display = 'block';
-      moonIcon.style.display = 'none';
-    }
-  };
-
-  // Initialize Theme
-  const savedTheme = getSavedTheme();
-  if (savedTheme) {
-    applyTheme(savedTheme);
-  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    applyTheme('dark');
-  }
-
-  themeToggle.addEventListener('click', () => {
-    const isDark = body.classList.contains('dark-theme');
-    const newTheme = isDark ? 'light' : 'dark';
-    applyTheme(newTheme);
-    saveTheme(newTheme);
-  });
-
-  // ==========================================================================
-  // --- Options Dependencies Helper ---
-  // ==========================================================================
-  rulePhoneCountryCode.addEventListener('change', () => {
-    if (rulePhoneCountryCode.checked) {
-      phoneFormatSelectContainer.style.display = 'flex';
-    } else {
-      phoneFormatSelectContainer.style.display = 'none';
-    }
-  });
-
-  ruleDeduplicate.addEventListener('change', () => {
-    if (ruleDeduplicate.checked) {
-      dupColumnSelectContainer.style.display = 'flex';
-    } else {
-      dupColumnSelectContainer.style.display = 'none';
-    }
-  });
-
-  // ==========================================================================
-  // --- Input Tab Controls ---
-  // ==========================================================================
-  const switchTab = (tab) => {
-    activeTab = tab;
-    if (tab === 'file') {
-      tabBtnFile.classList.add('active');
-      tabBtnRaw.classList.remove('active');
-      panelFile.classList.add('active');
-      panelRaw.classList.remove('active');
-      
-      // Update process button state
-      validateProcessButtonState();
-    } else {
-      tabBtnRaw.classList.add('active');
-      tabBtnFile.classList.remove('active');
-      panelRaw.classList.add('active');
-      panelFile.classList.add('active'); // Wait, typo: should be display raw only
-      panelFile.classList.remove('active');
-      columnMappingSection.style.display = 'none';
-      
-      // Update process button state
-      validateProcessButtonState();
-    }
-  };
-
-  tabBtnFile.addEventListener('click', () => switchTab('file'));
-  tabBtnRaw.addEventListener('click', () => switchTab('raw'));
-
-  // ==========================================================================
-  // --- Manual/Raw Text Panel Actions ---
-  // ==========================================================================
+  
+  // Real-time text area changes
   rawTextarea.addEventListener('input', () => {
-    validateProcessButtonState();
+    updateCharCount();
+    // Clear file state if they are typing in the textarea
+    if (loadedFileData) {
+      resetFileStateSilently();
+    }
+    processData();
+  });
+  
+  // Live search filter
+  searchInput.addEventListener('input', () => {
+    renderTable();
   });
 
-  clearRawTextBtn.addEventListener('click', () => {
-    rawTextarea.value = '';
-    validateProcessButtonState();
-  });
-
-  loadExampleBtn.addEventListener('click', () => {
-    rawTextarea.value = `Họ và Tên,Số điện thoại,Email
-Nguyễn Văn A, 0912 345 678, nguYenvAna@gmail.com
-  trần thị b   , 0168.999.8888, tranthib@yopmail.com
-Lê Hoàng Nam, +84 905 123 456, namlh@outlook.com
-Phạm Minh Đức, 097-888-9999, ducpm@invalid-email
-Vũ Thị Mai, 0123.456.7890, maivt123@gmail.com
-Nguyễn Văn A, 0912345678, nguYenvAna@gmail.com
-Hoàng Anh Tuấn, 098765, tuanha@gmail.com
-Nguyễn Thị Hương, 0355443322, huongnt@temp-mail.org
-,,`;
-    validateProcessButtonState();
+  // Watch rules checkboxes to trigger real-time reprocessing
+  const configControls = [
+    ruleEmailTelex, ruleEmailLowercase, ruleEmailValidate, ruleEmailFilterDisposable,
+    rulePhoneDigitsOnly, rulePhoneConvertOldPrefix, rulePhoneCountryCode, phoneFormat, rulePhoneValidate,
+    ruleDeduplicate, dedupCriteria, ruleRemoveEmpty
+  ];
+  
+  configControls.forEach(control => {
+    control.addEventListener('change', () => {
+      // Toggle dependent containers
+      if (control === rulePhoneCountryCode) {
+        phoneFormatSelectContainer.style.display = rulePhoneCountryCode.checked ? 'flex' : 'none';
+      }
+      if (control === ruleDeduplicate) {
+        dupColumnSelectContainer.style.display = ruleDeduplicate.checked ? 'flex' : 'none';
+      }
+      processData();
+    });
   });
 
   // ==========================================================================
-  // --- File Drag & Drop Panel Actions ---
+  // --- File Upload Handlers ---
   // ==========================================================================
-  browseBtn.addEventListener('click', () => {
-    fileInput.click();
-  });
-
+  
+  dropzone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
-    if (file) handleSelectedFile(file);
+    if (file) handleFile(file);
   });
 
-  // Drag over effects
+  // Drag-and-drop mechanics
   ['dragenter', 'dragover'].forEach(eventName => {
     dropzone.addEventListener(eventName, (e) => {
       e.preventDefault();
@@ -246,14 +149,15 @@ Nguyễn Thị Hương, 0355443322, huongnt@temp-mail.org
   dropzone.addEventListener('drop', (e) => {
     const dt = e.dataTransfer;
     const file = dt.files[0];
-    if (file) handleSelectedFile(file);
+    if (file) handleFile(file);
   });
 
   removeFileBtn.addEventListener('click', () => {
-    resetFileInfo();
+    resetFileState();
+    processData();
   });
 
-  const resetFileInfo = () => {
+  const resetFileStateSilently = () => {
     loadedFileData = null;
     loadedFileHeaders = [];
     currentFileName = '';
@@ -261,10 +165,15 @@ Nguyễn Thị Hương, 0355443322, huongnt@temp-mail.org
     selectedFileInfo.style.display = 'none';
     dropzone.style.display = 'block';
     columnMappingSection.style.display = 'none';
-    validateProcessButtonState();
   };
 
-  const handleSelectedFile = (file) => {
+  const resetFileState = () => {
+    resetFileStateSilently();
+    rawTextarea.value = '';
+    updateCharCount();
+  };
+
+  const handleFile = (file) => {
     const maxSizeBytes = 20 * 1024 * 1024; // 20MB
     if (file.size > maxSizeBytes) {
       alert('Tệp quá lớn! Vui lòng chọn tệp dưới 20MB.');
@@ -277,825 +186,817 @@ Nguyễn Thị Hương, 0355443322, huongnt@temp-mail.org
     
     dropzone.style.display = 'none';
     selectedFileInfo.style.display = 'flex';
+    
+    // Clear manual textarea
+    rawTextarea.value = '';
+    updateCharCount();
 
-    // Parse the file data based on extension
     const extension = file.name.split('.').pop().toLowerCase();
     
     if (extension === 'csv') {
       parseCSV(file);
     } else if (extension === 'xlsx' || extension === 'xls') {
       parseExcel(file);
-    } else if (extension === 'txt') {
+    } else if (extension === 'txt' || extension === 'log') {
       parseTXT(file);
     } else {
-      alert('Định dạng tệp không được hỗ trợ! Vui lòng chọn tệp CSV, Excel hoặc TXT.');
-      resetFileInfo();
+      alert('Định dạng tệp không hỗ trợ! Vui lòng chọn tệp CSV, Excel hoặc TXT.');
+      resetFileState();
     }
   };
 
-  // Format File Size helper
-  function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
+  function formatBytes(bytes) {
+    if (bytes === 0) return '0 KB';
     const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    return parseFloat((bytes / k).toFixed(1)) + ' KB';
   }
 
-  // ==========================================================================
-  // --- File Parsers (CSV, Excel, TXT) ---
-  // ==========================================================================
+  // --- File Parsers ---
   
-  // CSV Parser via PapaParse
   function parseCSV(file) {
     Papa.parse(file, {
-      skipEmptyLines: false, // Keep empty lines so we can filter and log them if configured
+      skipEmptyLines: false,
       complete: function(results) {
         if (results.data && results.data.length > 0) {
-          processRawDataToState(results.data);
+          storeParsedData(results.data);
         } else {
-          alert('Tệp CSV không chứa dữ liệu!');
-          resetFileInfo();
+          alert('Tệp CSV trống!');
+          resetFileState();
         }
-      },
-      error: function(err) {
-        alert('Lỗi đọc tệp CSV: ' + err.message);
-        resetFileInfo();
       }
     });
   }
 
-  // Excel Parser via SheetJS
   function parseExcel(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        
-        // Grab the first sheet
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        // Convert to array of arrays
-        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
         
         if (rows && rows.length > 0) {
-          processRawDataToState(rows);
+          storeParsedData(rows);
         } else {
-          alert('Tệp Excel không chứa dữ liệu!');
-          resetFileInfo();
+          alert('Tệp Excel trống!');
+          resetFileState();
         }
       } catch (err) {
-        alert('Lỗi đọc tệp Excel: ' + err.message);
-        resetFileInfo();
+        alert('Lỗi đọc Excel: ' + err.message);
+        resetFileState();
       }
     };
     reader.readAsArrayBuffer(file);
   }
 
-  // TXT Parser (reads line by line, splits by common delimiters)
   function parseTXT(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
       const text = e.target.result;
       const lines = text.split(/\r?\n/);
       
-      // Auto-detect delimiter from the first 5 lines (comma, semicolon, tab or pipe)
+      // Delimiter detection
       let delimiter = ',';
-      const sampleLines = lines.slice(0, 5).filter(line => line.trim().length > 0);
-      if (sampleLines.length > 0) {
+      const sample = lines.slice(0, 5).filter(l => l.trim().length > 0);
+      if (sample.length > 0) {
         const delims = [',', ';', '\t', '|'];
-        const counts = delims.map(d => {
-          return {
-            delim: d,
-            count: sampleLines.reduce((acc, line) => acc + (line.split(d).length - 1), 0)
-          };
-        });
-        // Sort descending
-        counts.sort((a, b) => b.count - a.count);
-        if (counts[0].count > 0) {
-          delimiter = counts[0].delim;
-        }
+        const counts = delims.map(d => ({
+          delim: d,
+          count: sample.reduce((acc, l) => acc + (l.split(d).length - 1), 0)
+        })).sort((a, b) => b.count - a.count);
+        if (counts[0].count > 0) delimiter = counts[0].delim;
       }
-
-      // Convert to array of arrays
-      const rows = lines.map(line => {
-        return line.split(delimiter).map(cell => cell.trim());
-      });
-
-      if (rows && rows.length > 0) {
-        processRawDataToState(rows);
-      } else {
-        alert('Tệp văn bản không chứa dữ liệu!');
-        resetFileInfo();
-      }
+      
+      const rows = lines.map(line => line.split(delimiter).map(c => c.trim()));
+      storeParsedData(rows);
     };
     reader.readAsText(file);
   }
 
-  // Common handler after parsing raw arrays
-  function processRawDataToState(rows) {
-    // Clean up empty outer-bound columns if any
-    const maxCols = Math.max(...rows.map(r => r.length));
-    
-    // Assume the first row containing elements is the header
-    let headerRowIndex = 0;
-    // Find first non-empty row to act as headers
+  function storeParsedData(rows) {
+    // Detect header row
+    let headerIdx = 0;
     for (let i = 0; i < rows.length; i++) {
       if (rows[i].some(cell => String(cell).trim() !== '')) {
-        headerRowIndex = i;
+        headerIdx = i;
         break;
       }
     }
-
-    loadedFileHeaders = rows[headerRowIndex].map((h, index) => {
-      const headerStr = String(h).trim();
-      return headerStr !== '' ? headerStr : `Cột ${index + 1}`;
-    });
-
-    // Save data rows (everything after the header)
-    loadedFileData = rows.slice(headerRowIndex + 1);
-
-    // Populate Column Mapping Selects
-    populateColumnMapping(loadedFileHeaders);
     
-    columnMappingSection.style.display = 'block';
-    validateProcessButtonState();
-  }
-
-  // Populate mapping selectors
-  function populateColumnMapping(headers) {
+    loadedFileHeaders = rows[headerIdx].map((h, i) => {
+      const s = String(h).trim();
+      return s !== '' ? s : `Cột ${i + 1}`;
+    });
+    
+    loadedFileData = rows.slice(headerIdx + 1);
+    
+    // Setup select options
     colMapSelects.forEach(select => {
-      // Clear all options except the first "Skip" option
-      select.innerHTML = '<option value="">-- Không có / Bỏ qua --</option>';
-      
-      headers.forEach((header, index) => {
-        const option = document.createElement('option');
-        option.value = index;
-        option.textContent = `${header} (Cột ${index + 1})`;
-        select.appendChild(option);
+      select.innerHTML = '<option value="">-- Bỏ qua --</option>';
+      loadedFileHeaders.forEach((h, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = `${h} (Cột ${idx + 1})`;
+        select.appendChild(opt);
       });
     });
-
-    // Auto-detect columns based on name matches
-    headers.forEach((header, index) => {
-      const lower = header.toLowerCase();
-      
-      // Auto-detect Name
-      if (lower.includes('ten') || lower.includes('họ') || lower.includes('ho') || lower.includes('name') || lower.includes('khach') || lower.includes('user')) {
-        if (!mapNameCol.value) mapNameCol.value = index;
+    
+    // Auto map columns
+    loadedFileHeaders.forEach((h, idx) => {
+      const l = h.toLowerCase();
+      if (l.includes('sdt') || l.includes('phone') || l.includes('sđt') || l.includes('điện thoại')) {
+        mapPhoneCol.value = idx;
       }
-      // Auto-detect Phone
-      if (lower.includes('sdt') || lower.includes('phone') || lower.includes('so dien thoai') || lower.includes('sđt') || lower.includes('tel') || lower.includes('dien thoai') || lower.includes('mobile')) {
-        if (!mapPhoneCol.value) mapPhoneCol.value = index;
+      if (l.includes('email') || l.includes('mail')) {
+        mapEmailCol.value = idx;
       }
-      // Auto-detect Email
-      if (lower.includes('email') || lower.includes('mail') || lower.includes('thu dien tu')) {
-        if (!mapEmailCol.value) mapEmailCol.value = index;
+      if (l.includes('ten') || l.includes('họ') || l.includes('name')) {
+        mapNameCol.value = idx;
       }
     });
-
-    // Fallback detection if headers didn't match (analyze first row values)
-    if (loadedFileData && loadedFileData.length > 0) {
-      const sampleRow = loadedFileData[0];
-      
-      if (!mapNameCol.value || !mapPhoneCol.value || !mapEmailCol.value) {
-        sampleRow.forEach((val, index) => {
-          const str = String(val).trim();
-          if (str === '') return;
-
-          // Check if looks like Email
-          if (!mapEmailCol.value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str)) {
-            mapEmailCol.value = index;
-          }
-          // Check if looks like Phone
-          if (!mapPhoneCol.value && /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(str) && str.replace(/[^\d]/g, '').length >= 8) {
-            mapPhoneCol.value = index;
-          }
-        });
-      }
-    }
+    
+    // Listen for mapping changes
+    colMapSelects.forEach(select => {
+      select.onchange = () => processData();
+    });
+    
+    columnMappingSection.style.display = 'block';
+    processData();
   }
 
-  // Validate process button based on loaded content
-  function validateProcessButtonState() {
-    if (activeTab === 'file') {
-      if (loadedFileData && loadedFileData.length > 0) {
-        btnProcess.removeAttribute('disabled');
-      } else {
-        btnProcess.setAttribute('disabled', 'true');
-      }
-    } else {
-      if (rawTextarea.value.trim().length > 0) {
-        btnProcess.removeAttribute('disabled');
-      } else {
-        btnProcess.setAttribute('disabled', 'true');
-      }
-    }
+  function updateCharCount() {
+    charCount.textContent = `${rawTextarea.value.length} ký tự`;
   }
 
   // ==========================================================================
-  // --- Core Processing Logic ---
+  // --- Cleaning & Validation Helpers ---
   // ==========================================================================
   
-  btnProcess.addEventListener('click', () => {
-    // Show spinner & disable button
-    btnProcess.setAttribute('disabled', 'true');
-    spinner.style.display = 'inline-block';
-    iconSparkles.style.display = 'none';
-    processBtnText.textContent = 'Đang làm sạch dữ liệu...';
-
-    // Small delay to let the UI update and draw the loader
-    setTimeout(() => {
-      try {
-        executeCleaning();
-      } catch (err) {
-        console.error(err);
-        alert('Đã xảy ra lỗi trong quá trình xử lý: ' + err.message);
-      } finally {
-        // Reset process button state
-        btnProcess.removeAttribute('disabled');
-        spinner.style.display = 'none';
-        iconSparkles.style.display = 'inline-block';
-        processBtnText.textContent = 'Bắt đầu làm sạch dữ liệu';
-      }
-    }, 100);
-  });
-
-  // Remove accents function for Vietnamese text
-  function removeAccents(str) {
-    return str
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/đ/g, 'd')
-      .replace(/Đ/g, 'D');
+  // Sửa Telex và dấu tiếng Việt của Email
+  function fixEmailTelexAndAccents(email) {
+    let cleaned = email.trim();
+    const atIdx = cleaned.lastIndexOf('@');
+    if (atIdx === -1) return cleaned;
+    
+    let local = cleaned.substring(0, atIdx);
+    let domain = cleaned.substring(atIdx + 1).toLowerCase();
+    
+    // 1. Remove standard Vietnamese accents from domain and TLD using normalization
+    domain = domain.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, 'd');
+    
+    // 2. Fix TLD typos (like .cơm -> .com)
+    domain = domain.replace(/\.cơm$|\.coơm$|\.cỏm$|\.cốm$|\.con$/g, '.com');
+    domain = domain.replace(/\.vớn$|\.vỏn$/g, '.vn');
+    
+    // 3. Fix common host name typos
+    domain = domain.replace(/^gmâil|^gmaỉl|^gmaill|^gamil|^gmali|^gmai$/g, 'gmail');
+    domain = domain.replace(/^yàhoo|^yahou|^yaho$/g, 'yahoo');
+    domain = domain.replace(/^outloọk|^outlok|^outluc$/g, 'outlook');
+    domain = domain.replace(/^hotmaill|^hotmai$/g, 'hotmail');
+    
+    return local + '@' + domain;
   }
 
-  // Capitalize name function (Nguyen Van A -> Nguyen Van A)
-  function capitalizeName(str) {
-    return str
+  // Clean Email function
+  function cleanEmail(val) {
+    if (!val) return { value: '', logs: [], category: 'empty' };
+    
+    let raw = String(val).trim();
+    let original = raw;
+    let logs = [];
+    let cleaned = raw;
+    
+    if (ruleEmailLowercase.checked) {
+      cleaned = cleaned.toLowerCase();
+    }
+    
+    if (ruleEmailTelex.checked) {
+      cleaned = fixEmailTelexAndAccents(cleaned);
+    }
+    
+    if (cleaned !== original) {
+      logs.push("Sửa lỗi gõ Telex/viết hoa email");
+    }
+    
+    // Validate email
+    if (ruleEmailValidate.checked) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(cleaned)) {
+        return {
+          value: cleaned,
+          original,
+          logs: ["Email sai định dạng"],
+          category: 'error'
+        };
+      }
+    }
+    
+    // Filter disposable email
+    if (ruleEmailFilterDisposable.checked) {
+      const parts = cleaned.split('@');
+      const domain = parts[parts.length - 1];
+      if (disposableEmailDomains.has(domain)) {
+        return {
+          value: cleaned,
+          original,
+          logs: ["Phát hiện email ảo/tạm thời"],
+          category: 'error'
+        };
+      }
+    }
+    
+    const category = (cleaned !== original) ? 'fixed' : 'valid';
+    return { value: cleaned, original, logs, category };
+  }
+
+  // Clean Phone function
+  function cleanPhone(val) {
+    if (!val) return { value: '', logs: [], category: 'empty' };
+    
+    let raw = String(val).trim();
+    let original = raw;
+    let logs = [];
+    
+    // 1. Remove spaces, dashes, dots, brackets
+    let cleaned = raw;
+    if (rulePhoneDigitsOnly.checked) {
+      // Keep leading '+' if present
+      const hasPlus = raw.startsWith('+');
+      cleaned = raw.replace(/[^\d]/g, '');
+      if (hasPlus) cleaned = '+' + cleaned;
+    } else {
+      cleaned = raw.replace(/\s+/g, '');
+    }
+    
+    if (cleaned !== original) {
+      logs.push("Xóa khoảng trắng/ký tự đặc biệt");
+    }
+    
+    // Standardize to 0 for prefix mapping and validation
+    let temp = cleaned;
+    let hasPlus = temp.startsWith('+');
+    let numberPart = temp.replace(/^\+/, '');
+    let std0 = '';
+    
+    if (hasPlus && numberPart.startsWith('84')) {
+      std0 = '0' + numberPart.slice(2);
+    } else if (numberPart.startsWith('84') && numberPart.length > 9) {
+      std0 = '0' + numberPart.slice(2);
+    } else if (numberPart.startsWith('0')) {
+      std0 = numberPart;
+    } else if (numberPart.length === 9) {
+      std0 = '0' + numberPart;
+      logs.push("Thêm số 0 vào trước SĐT");
+    } else {
+      std0 = temp;
+    }
+    
+    // 2. Convert old 11-digit VN mobile prefixes to 10-digit
+    let converted = std0;
+    if (rulePhoneConvertOldPrefix.checked && std0.startsWith('0') && std0.length === 11) {
+      const prefix4 = std0.substring(0, 4);
+      if (vnPhonePrefixMap[prefix4]) {
+        converted = vnPhonePrefixMap[prefix4] + std0.substring(4);
+        logs.push("Chuyển đổi đầu số di động VN cũ sang mới");
+      }
+    }
+    
+    // 3. Format output country code formatting
+    let formatted = converted;
+    if (rulePhoneCountryCode.checked && converted.startsWith('0') && converted.length === 10) {
+      const fmt = phoneFormat.value;
+      if (fmt === 'prefix_84') {
+        formatted = '84' + converted.slice(1);
+      } else if (fmt === 'prefix_plus84') {
+        formatted = '+84' + converted.slice(1);
+      }
+    }
+    
+    // 4. Validate Phone
+    let countDigits = converted.replace(/[^\d]/g, '').length;
+    let isVnMobile = /^0[35789]\d{8}$/.test(converted);
+    
+    if (rulePhoneValidate.checked) {
+      if (converted.length > 10) {
+        return {
+          value: formatted,
+          original,
+          logs: [`Thừa số: Xóa khoảng trắng/ký tự đặc biệt (có ${countDigits} số)`],
+          category: 'error'
+        };
+      } else if (converted.length < 10) {
+        return {
+          value: formatted,
+          original,
+          logs: [`Thiếu số: kiểm tra lại (có ${countDigits} số)`],
+          category: 'error'
+        };
+      } else if (!isVnMobile) {
+        return {
+          value: formatted,
+          original,
+          logs: [`Sai đầu số di động Việt Nam (có 10 số)`],
+          category: 'error'
+        };
+      }
+    }
+    
+    const category = (formatted !== original || logs.length > 0) ? 'fixed' : 'valid';
+    return { value: formatted, original, logs, category };
+  }
+
+  // Clean Name helper
+  function cleanName(val) {
+    if (!val) return { value: '', logs: [], category: 'empty' };
+    
+    let raw = String(val).trim();
+    let original = raw;
+    let logs = [];
+    
+    let cleaned = raw.replace(/\s+/g, ' ').trim();
+    
+    // Capitalize: Nguyen Van A
+    cleaned = cleaned
       .toLowerCase()
       .split(' ')
       .filter(w => w.length > 0)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
-  }
-
-  // Standardize and Convert VN phone carrier prefixes
-  function processPhone(val, convertPrefix, outputFormat, digitsOnly, validate) {
-    if (!val) return { phone: '', logs: [], isValid: false };
-    
-    let raw = String(val).trim();
-    let original = raw;
-    let logs = [];
-    
-    // 1. Remove non-digits if enabled (keep '+' at first position just in case)
-    let cleaned = '';
-    if (digitsOnly) {
-      const startsWithPlus = raw.startsWith('+');
-      cleaned = raw.replace(/[^\d]/g, '');
-      if (startsWithPlus && !cleaned.startsWith('+')) {
-        cleaned = '+' + cleaned;
-      }
-      if (cleaned !== original) {
-        logs.push(`Loại bỏ ký tự đặc biệt khỏi SĐT: "${original}" -> "${cleaned}"`);
-      }
-    } else {
-      cleaned = raw.replace(/\s+/g, ''); // just strip spacing
-    }
-
-    // Standardize representation to simple digit string with leading country indicator or 0
-    let temp = cleaned;
-    let hasPlus = temp.startsWith('+');
-    let numberPart = temp.replace(/^\+/, '');
-
-    // Convert +84 or 84 to 0 for standard prefix translation
-    let standard0 = '';
-    if (hasPlus && numberPart.startsWith('84')) {
-      standard0 = '0' + numberPart.slice(2);
-    } else if (numberPart.startsWith('84') && numberPart.length > 9) {
-      standard0 = '0' + numberPart.slice(2);
-    } else if (numberPart.startsWith('0')) {
-      standard0 = numberPart;
-    } else if (numberPart.length === 9) {
-      // Missing leading zero, likely standard 9 digit mobil
-      standard0 = '0' + numberPart;
-      logs.push(`Thêm số 0 vào trước SĐT thiếu: "${cleaned}" -> "${standard0}"`);
-    } else {
-      standard0 = temp; // fallback
-    }
-
-    // 2. Convert old VN carrier prefix (11 digits to 10 digits)
-    let converted = standard0;
-    if (convertPrefix && standard0.startsWith('0') && standard0.length === 11) {
-      const prefix4 = standard0.substring(0, 4);
-      if (vnPhonePrefixMap[prefix4]) {
-        converted = vnPhonePrefixMap[prefix4] + standard0.substring(4);
-        logs.push(`Chuyển đổi đầu số cũ VN: "${standard0}" -> "${converted}"`);
-      }
-    }
-
-    // 3. Apply Output Formatting (prefix_0, prefix_84, prefix_plus84)
-    let formatted = converted;
-    if (rulePhoneCountryCode.checked && converted.startsWith('0') && converted.length === 10) {
-      if (outputFormat === 'prefix_84') {
-        formatted = '84' + converted.slice(1);
-      } else if (outputFormat === 'prefix_plus84') {
-        formatted = '+84' + converted.slice(1);
-      } else {
-        formatted = converted;
-      }
-    }
-
-    // 4. Validate Phone structure
-    let isValid = true;
-    if (validate) {
-      // Validate based on standardized 10-digit number starting with 0
-      const stdNoCountry = converted.startsWith('0') ? converted : ('0' + converted.replace(/^\+84|^84/, '1').slice(1));
       
-      // VN mobile numbers always start with 03, 05, 07, 08, 09 and have exactly 10 digits
-      const isMobileVN = /^0[35789]\d{8}$/.test(converted);
-      
-      if (converted.length !== 10 || !isMobileVN) {
-        isValid = false;
-        logs.push(`Số điện thoại không hợp lệ (độ dài/đầu số sai): "${original}"`);
-      }
-    }
-
-    return { phone: formatted, logs, isValid };
-  }
-
-  // Email validation and cleaning
-  function processEmail(val, lowercase, validate, filterDisposable) {
-    if (!val) return { email: '', logs: [], isValid: false };
+    // Remove accents if they want (let's keep accents by default, but we can do normalization if they select rule)
+    // There is no specific accents removal checkbox in the mockup, but we keep it clean.
     
-    let raw = String(val).trim();
-    let original = raw;
-    let logs = [];
-    let isValid = true;
-
-    // 1. Lowercase
-    let cleaned = lowercase ? raw.toLowerCase() : raw;
     if (cleaned !== original) {
-      logs.push(`Chuyển Email thành chữ thường: "${original}" -> "${cleaned}"`);
+      logs.push("Chuẩn hóa định dạng họ tên");
     }
-
-    // 2. Validate format
-    if (validate) {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(cleaned)) {
-        isValid = false;
-        logs.push(`Email sai định dạng: "${original}"`);
-        return { email: cleaned, logs, isValid };
-      }
-    }
-
-    // 3. Filter disposable email
-    if (filterDisposable) {
-      const parts = cleaned.split('@');
-      const domain = parts[parts.length - 1];
-      if (disposableEmailDomains.has(domain)) {
-        isValid = false;
-        logs.push(`Phát hiện email ảo/rác: "${original}"`);
-      }
-    }
-
-    return { email: cleaned, logs, isValid };
+    
+    const category = (cleaned !== original) ? 'fixed' : 'valid';
+    return { value: cleaned, original, logs, category };
   }
 
-  // Main process execution
-  function executeCleaning() {
-    let rowsToProcess = [];
-    let headers = [];
+  // Auto-detect item type (for raw text lists)
+  function detectType(str) {
+    const s = str.trim();
+    if (s.includes('@')) return 'email';
+    // If it has digits and fits phone patterns
+    if (/[0-9]/.test(s) && s.replace(/[^\d]/g, '').length >= 5) return 'phone';
+    return 'name';
+  }
 
-    // Reset results variables
-    cleanedData = [];
+  // ==========================================================================
+  // --- Core Processing Loop ---
+  // ==========================================================================
+  
+  function processData() {
+    let rawRows = [];
+    let isFileMode = (loadedFileData !== null);
     
-    let countTotal = 0;
+    let indexPhone = mapPhoneCol.value !== '' ? parseInt(mapPhoneCol.value) : -1;
+    let indexEmail = mapEmailCol.value !== '' ? parseInt(mapEmailCol.value) : -1;
+    let indexName = mapNameCol.value !== '' ? parseInt(mapNameCol.value) : -1;
+    
+    // 1. Gather Rows
+    if (isFileMode) {
+      rawRows = loadedFileData.map(r => [...r]);
+    } else {
+      // Split raw textarea by line
+      const lines = rawTextarea.value.split(/\r?\n/);
+      rawRows = lines.map(line => {
+        // If it's standard text line but has commas/tabs, let's treat it as single text column
+        return [line.trim()];
+      });
+    }
+    
+    let totalInput = 0;
     let countValid = 0;
     let countFixed = 0;
-    let countInvalid = 0;
-    let countDups = 0;
-
-    let indexNameCol = -1;
-    let indexPhoneCol = -1;
-    let indexEmailCol = -1;
-
-    let systemLogs = [];
-
-    // --- Prepare Input ---
-    if (activeTab === 'file') {
-      rowsToProcess = JSON.parse(JSON.stringify(loadedFileData)); // Deep copy loaded array of arrays
-      headers = [...loadedFileHeaders];
+    let countDup = 0;
+    let countError = 0;
+    
+    let seenEmails = new Set();
+    let seenPhones = new Set();
+    let seenAll = new Set();
+    
+    processedItemsList = [];
+    
+    // Loop through each row
+    rawRows.forEach((row, idx) => {
+      // Generate stable row key
+      const rowId = `row-${idx}`;
       
-      indexNameCol = mapNameCol.value !== "" ? parseInt(mapNameCol.value) : -1;
-      indexPhoneCol = mapPhoneCol.value !== "" ? parseInt(mapPhoneCol.value) : -1;
-      indexEmailCol = mapEmailCol.value !== "" ? parseInt(mapEmailCol.value) : -1;
-    } else {
-      // Parse raw text
-      const rawText = rawTextarea.value.trim();
-      const lines = rawText.split(/\r?\n/);
+      // If row was deleted by user action, exclude it
+      if (deletedItemIds.has(rowId)) return;
       
-      if (lines.length === 0) return;
-
-      // Detect delimiter
-      let delimiter = ',';
-      const sampleLines = lines.slice(0, 3).filter(line => line.trim().length > 0);
-      if (sampleLines.length > 0) {
-        const delims = [',', ';', '\t', '|'];
-        const counts = delims.map(d => {
-          return {
-            delim: d,
-            count: sampleLines.reduce((acc, line) => acc + (line.split(d).length - 1), 0)
-          };
-        });
-        counts.sort((a, b) => b.count - a.count);
-        if (counts[0].count > 0) delimiter = counts[0].delim;
-      }
-
-      // Convert lines to array of arrays
-      const allRows = lines.map(line => line.split(delimiter).map(cell => cell.trim()));
-      
-      // Auto headers detect for manual pasting: check if first row contains headers
-      let hasHeader = false;
-      const firstRow = allRows[0];
-      const isHeader = firstRow.some(cell => {
-        const c = cell.toLowerCase();
-        return c.includes('tên') || c.includes('ho') || c.includes('name') || c.includes('sđt') || c.includes('phone') || c.includes('email') || c.includes('sdt');
-      });
-
-      if (isHeader) {
-        headers = firstRow.map((h, i) => h !== '' ? h : `Cột ${i + 1}`);
-        rowsToProcess = allRows.slice(1);
-        hasHeader = true;
-      } else {
-        // Create virtual headers
-        const maxCols = Math.max(...allRows.map(r => r.length));
-        headers = [];
-        for (let i = 0; i < maxCols; i++) {
-          headers.push(`Cột ${i + 1}`);
-        }
-        rowsToProcess = allRows;
-      }
-
-      // Auto-map columns for raw text
-      headers.forEach((h, index) => {
-        const lower = h.toLowerCase();
-        if (lower.includes('ten') || lower.includes('họ') || lower.includes('ho') || lower.includes('name')) {
-          indexNameCol = index;
-        } else if (lower.includes('sdt') || lower.includes('phone') || lower.includes('sđt') || lower.includes('tel')) {
-          indexPhoneCol = index;
-        } else if (lower.includes('email') || lower.includes('mail')) {
-          indexEmailCol = index;
-        }
-      });
-
-      // If no mapping matched by name, do simple index based assignment (0=Name, 1=Phone, 2=Email)
-      if (indexNameCol === -1 && indexPhoneCol === -1 && indexEmailCol === -1) {
-        if (headers.length >= 1) indexNameCol = 0;
-        if (headers.length >= 2) indexPhoneCol = 1;
-        if (headers.length >= 3) indexEmailCol = 2;
-      }
-    }
-
-    countTotal = rowsToProcess.length;
-
-    // Sets to track duplicates
-    const seenEmails = new Set();
-    const seenPhones = new Set();
-    const seenFullRows = new Set();
-
-    // Loop through all data rows
-    const processedRows = [];
-
-    rowsToProcess.forEach((row, rowIndex) => {
-      const displayRowNo = rowIndex + 1;
-      
-      // 0. Check if row is completely empty
+      // Check if row is completely empty
       const isRowEmpty = row.every(cell => String(cell).trim() === '');
       if (isRowEmpty) {
-        if (ruleRemoveEmpty.checked) {
-          countInvalid++;
-          systemLogs.push({ type: 'error', text: `Dòng ${displayRowNo}: Đã loại bỏ vì dòng trống.` });
-          return; // Skip empty row
-        }
-        processedRows.push(row); // Keep empty if not filtering
-        return;
+        if (ruleRemoveEmpty.checked) return; // skip
       }
-
-      let rowHasChanged = false;
-      let rowHasError = false;
       
-      let cleanRow = [...row]; // Copy original cells
-
-      // --- Clean Name ---
-      if (indexNameCol !== -1 && indexNameCol < row.length) {
-        let nameVal = String(row[indexNameCol]);
-        let originalName = nameVal;
+      totalInput++;
+      
+      let cleanRow = [...row];
+      let rowLogs = [];
+      let rowCategory = 'valid'; // valid, fixed, error, dup
+      
+      let cleanValDisplay = '';
+      let originalValDisplay = '';
+      
+      // --- Handle Processing based on file column maps OR auto-detection ---
+      if (isFileMode) {
+        // A. File Upload columns mapped
+        let isRowValid = true;
+        let isRowFixed = false;
         
-        if (nameVal.trim() !== "") {
-          let tempName = nameVal;
-          if (ruleNameTrim.checked) {
-            tempName = tempName.replace(/\s+/g, ' ').trim();
+        // 1. Name clean
+        if (indexName !== -1 && indexName < row.length) {
+          const res = cleanName(row[indexName]);
+          if (res.category === 'fixed') isRowFixed = true;
+          cleanRow[indexName] = res.value;
+          
+          if (!cleanValDisplay) {
+            cleanValDisplay = res.value;
+            originalValDisplay = res.original;
           }
-          if (ruleNameCapitalize.checked) {
-            tempName = capitalizeName(tempName);
+        }
+        
+        // 2. Phone clean
+        if (indexPhone !== -1 && indexPhone < row.length) {
+          const res = cleanPhone(row[indexPhone]);
+          if (res.category === 'error') {
+            isRowValid = false;
+            rowLogs.push(...res.logs);
+          } else if (res.category === 'fixed') {
+            isRowFixed = true;
+            rowLogs.push(...res.logs);
           }
-          if (ruleNameNoAccents.checked) {
-            tempName = removeAccents(tempName);
+          cleanRow[indexPhone] = res.value;
+          
+          // Phone takes display priority
+          cleanValDisplay = res.value;
+          originalValDisplay = res.original;
+        }
+        
+        // 3. Email clean
+        if (indexEmail !== -1 && indexEmail < row.length) {
+          const res = cleanEmail(row[indexEmail]);
+          if (res.category === 'error') {
+            isRowValid = false;
+            rowLogs.push(...res.logs);
+          } else if (res.category === 'fixed') {
+            isRowFixed = true;
+            rowLogs.push(...res.logs);
+          }
+          cleanRow[indexEmail] = res.value;
+          
+          if (!cleanValDisplay || indexPhone === -1) {
+            cleanValDisplay = res.value;
+            originalValDisplay = res.original;
+          }
+        }
+        
+        rowCategory = !isRowValid ? 'error' : (isRowFixed ? 'fixed' : 'valid');
+        
+      } else {
+        // B. Raw Text Area List (single item per line)
+        const cellVal = String(row[0]);
+        if (cellVal.trim() === '') {
+          rowCategory = 'empty';
+        } else {
+          const detected = detectType(cellVal);
+          let res = {};
+          if (detected === 'email') {
+            res = cleanEmail(cellVal);
+          } else if (detected === 'phone') {
+            res = cleanPhone(cellVal);
+          } else {
+            res = cleanName(cellVal);
           }
           
-          if (tempName !== originalName) {
-            cleanRow[indexNameCol] = tempName;
-            rowHasChanged = true;
-            systemLogs.push({
-              type: 'info',
-              text: `Dòng ${displayRowNo}: Chuẩn hóa tên "${originalName}" -> "${tempName}"`
-            });
-          }
+          cleanRow[0] = res.value;
+          cleanValDisplay = res.value;
+          originalValDisplay = res.original;
+          rowLogs.push(...res.logs);
+          rowCategory = res.category;
         }
       }
-
-      // --- Clean Phone ---
-      if (indexPhoneCol !== -1 && indexPhoneCol < row.length) {
-        let phoneVal = String(row[indexPhoneCol]);
-        if (phoneVal.trim() !== "") {
-          const resPhone = processPhone(
-            phoneVal, 
-            rulePhoneConvertOldPrefix.checked, 
-            phoneFormat.value, 
-            rulePhoneDigitsOnly.checked, 
-            rulePhoneValidate.checked
-          );
-
-          // Append sub logs
-          resPhone.logs.forEach(logText => {
-            systemLogs.push({ type: resPhone.isValid ? 'info' : 'error', text: `Dòng ${displayRowNo}: ${logText}` });
-          });
-
-          if (!resPhone.isValid && rulePhoneValidate.checked) {
-            countInvalid++;
-            rowHasError = true;
-            return; // Filter out this row completely
-          }
-
-          if (resPhone.phone !== phoneVal) {
-            cleanRow[indexPhoneCol] = resPhone.phone;
-            rowHasChanged = true;
-          }
-        }
+      
+      if (rowCategory === 'empty') {
+        if (ruleRemoveEmpty.checked) return;
+        rowCategory = 'error';
+        rowLogs = ["Dòng trống"];
       }
-
-      // --- Clean Email ---
-      if (indexEmailCol !== -1 && indexEmailCol < row.length) {
-        let emailVal = String(row[indexEmailCol]);
-        if (emailVal.trim() !== "") {
-          const resEmail = processEmail(
-            emailVal,
-            ruleEmailLowercase.checked,
-            ruleEmailValidate.checked,
-            ruleEmailFilterDisposable.checked
-          );
-
-          // Append sub logs
-          resEmail.logs.forEach(logText => {
-            systemLogs.push({ type: resEmail.isValid ? 'info' : 'error', text: `Dòng ${displayRowNo}: ${logText}` });
-          });
-
-          if (!resEmail.isValid && (ruleEmailValidate.checked || ruleEmailFilterDisposable.checked)) {
-            countInvalid++;
-            rowHasError = true;
-            return; // Filter out this row completely
-          }
-
-          if (resEmail.email !== emailVal) {
-            cleanRow[indexEmailCol] = resEmail.email;
-            rowHasChanged = true;
-          }
-        }
-      }
-
-      // --- Check Deduplication ---
-      if (ruleDeduplicate.checked) {
-        let isDuplicate = false;
-        let dupValue = '';
-
-        const currentEmail = indexEmailCol !== -1 ? String(cleanRow[indexEmailCol]).trim().toLowerCase() : '';
-        const currentPhone = indexPhoneCol !== -1 ? String(cleanRow[indexPhoneCol]).trim() : '';
-        const fullRowString = cleanRow.join('|').toLowerCase();
-
-        const criteria = dedupCriteria.value;
-
-        if (criteria === 'email' && currentEmail !== '') {
+      
+      // --- Deduplication Checks ---
+      if (ruleDeduplicate.checked && rowCategory !== 'error') {
+        let isDup = false;
+        let dupVal = '';
+        
+        const currentEmail = (indexEmail !== -1 && isFileMode) ? String(cleanRow[indexEmail]).trim().toLowerCase() : (detectType(String(row[0])) === 'email' ? cleanRow[0].toLowerCase() : '');
+        const currentPhone = (indexPhone !== -1 && isFileMode) ? String(cleanRow[indexPhone]).trim() : (detectType(String(row[0])) === 'phone' ? cleanRow[0] : '');
+        const rowString = cleanRow.join('|').toLowerCase();
+        
+        const crit = dedupCriteria.value;
+        
+        if (crit === 'email' && currentEmail !== '') {
           if (seenEmails.has(currentEmail)) {
-            isDuplicate = true;
-            dupValue = `Email "${currentEmail}"`;
+            isDup = true;
+            dupVal = `Email: ${currentEmail}`;
           } else {
             seenEmails.add(currentEmail);
           }
-        } else if (criteria === 'phone' && currentPhone !== '') {
+        } else if (crit === 'phone' && currentPhone !== '') {
           if (seenPhones.has(currentPhone)) {
-            isDuplicate = true;
-            dupValue = `SĐT "${currentPhone}"`;
+            isDup = true;
+            dupVal = `SĐT: ${currentPhone}`;
           } else {
             seenPhones.add(currentPhone);
           }
-        } else if (criteria === 'any') {
-          let dupMsg = [];
+        } else if (crit === 'any') {
           if (currentEmail !== '' && seenEmails.has(currentEmail)) {
-            isDuplicate = true;
-            dupMsg.push(`Email "${currentEmail}"`);
+            isDup = true;
+            dupVal = `Email: ${currentEmail}`;
           }
           if (currentPhone !== '' && seenPhones.has(currentPhone)) {
-            isDuplicate = true;
-            dupMsg.push(`SĐT "${currentPhone}"`);
+            isDup = true;
+            dupVal = `SĐT: ${currentPhone}`;
           }
           
-          if (isDuplicate) {
-            dupValue = dupMsg.join(' & ');
-          } else {
+          if (!isDup) {
             if (currentEmail !== '') seenEmails.add(currentEmail);
             if (currentPhone !== '') seenPhones.add(currentPhone);
           }
-        } else if (criteria === 'all') {
-          if (seenFullRows.has(fullRowString)) {
-            isDuplicate = true;
-            dupValue = "Toàn bộ dòng trùng khớp";
+        } else {
+          // 'all'
+          if (seenAll.has(rowString)) {
+            isDup = true;
+            dupVal = "Trùng lặp dòng";
           } else {
-            seenFullRows.add(fullRowString);
+            seenAll.add(rowString);
           }
         }
-
-        if (isDuplicate) {
-          countDups++;
-          systemLogs.push({
-            type: 'warning',
-            text: `Dòng ${displayRowNo}: Đã loại bỏ trùng lặp (${dupValue}).`
-          });
-          return; // Skip duplicate row
+        
+        if (isDup) {
+          rowCategory = 'dup';
+          rowLogs = [`Trùng lặp (${dupVal})`];
         }
       }
-
-      // Track statistics
-      if (rowHasChanged) {
+      
+      // Increment Stat Counters
+      if (rowCategory === 'dup') {
+        countDup++;
+      } else if (rowCategory === 'error') {
+        countError++;
+      } else if (rowCategory === 'fixed') {
         countFixed++;
-      } else {
+      } else if (rowCategory === 'valid') {
         countValid++;
       }
-
-      processedRows.push(cleanRow);
-    });
-
-    // Save outputs
-    cleanedData = [headers, ...processedRows];
-
-    // --- Render Statistics Dashboard ---
-    statTotalRows.textContent = countTotal;
-    statValidRows.textContent = processedRows.length - countFixed; // true clean inputs
-    statFixedRows.textContent = countFixed;
-    statInvalidRows.textContent = countInvalid;
-    statDupsRemoved.textContent = countDups;
-
-    // Percentage of clean data
-    const totalProcessedOutputs = processedRows.length;
-    const cleanPercentage = countTotal > 0 ? Math.round(((countTotal - countInvalid - countDups) / countTotal) * 100) : 0;
-    
-    chartPercentage.textContent = `${cleanPercentage}%`;
-    pctClean.textContent = `${cleanPercentage}%`;
-    pctDirty.textContent = `${100 - cleanPercentage}%`;
-
-    // Radial Progress animation
-    const circleDashOffset = 100 - cleanPercentage;
-    chartCircleProgress.style.strokeDasharray = `${cleanPercentage}, 100`;
-
-    // --- Render Detailed Log messages ---
-    logsContainer.innerHTML = '';
-    if (systemLogs.length === 0) {
-      logsContainer.innerHTML = '<p class="empty-logs">Không phát hiện lỗi dữ liệu cần sửa hoặc lọc bỏ.</p>';
-    } else {
-      systemLogs.forEach(log => {
-        const logEl = document.createElement('div');
-        logEl.className = `log-item ${log.type}`;
-        logEl.textContent = log.text;
-        logsContainer.appendChild(logEl);
+      
+      // Store in state
+      processedItemsList.push({
+        id: rowId,
+        cleanRow,
+        cleanValDisplay,
+        originalValDisplay,
+        logs: rowLogs,
+        category: rowCategory
       });
-    }
-
-    // --- Render Table Preview ---
-    previewTableBody.innerHTML = '';
-    
-    // Set headers
-    const previewTable = document.getElementById('previewTable');
-    const thead = previewTable.querySelector('thead tr');
-    thead.innerHTML = '<th>STT</th>';
-    
-    headers.forEach(h => {
-      const th = document.createElement('th');
-      th.textContent = h;
-      thead.appendChild(th);
     });
-
-    // Populate preview rows (max 50)
-    const previewRows = processedRows.slice(0, 50);
-    if (previewRows.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = headers.length + 1;
-      td.textContent = 'Không có dữ liệu sạch nào để hiển thị.';
-      td.style.textAlign = 'center';
-      td.style.padding = '30px';
-      tr.appendChild(td);
-      previewTableBody.appendChild(tr);
-    } else {
-      previewRows.forEach((row, idx) => {
-        const tr = document.createElement('tr');
-        
-        // STT column
-        const tdIdx = document.createElement('td');
-        tdIdx.textContent = idx + 1;
-        tr.appendChild(tdIdx);
-        
-        // Other columns
-        headers.forEach((h, colIdx) => {
-          const td = document.createElement('td');
-          const originalRow = rowsToProcess[idx];
-          
-          let cleanVal = row[colIdx] !== undefined ? String(row[colIdx]) : '';
-          let originalVal = (originalRow && originalRow[colIdx] !== undefined) ? String(originalRow[colIdx]) : '';
-          
-          if (cleanVal !== originalVal && (colIdx === indexNameCol || colIdx === indexPhoneCol || colIdx === indexEmailCol)) {
-            td.innerHTML = `<span class="diff-highlight" title="Trước: ${originalVal}">${cleanVal}</span>`;
-          } else {
-            td.textContent = cleanVal;
-          }
-          tr.appendChild(td);
-        });
-        
-        previewTableBody.appendChild(tr);
-      });
-    }
-
-    // Slide open dashboard
-    resultsDashboard.style.display = 'block';
-    resultsDashboard.scrollIntoView({ behavior: 'smooth' });
+    
+    // Update Stats Display
+    statTotal.textContent = totalInput;
+    statValid.textContent = countValid;
+    statFixed.textContent = countFixed;
+    statDup.textContent = countDup;
+    statError.textContent = countError;
+    
+    renderTable();
   }
 
   // ==========================================================================
-  // --- Exporters (CSV & Excel) ---
+  // --- Render Table & Filters ---
   // ==========================================================================
   
-  // CSV Downloader
-  btnExportCSV.addEventListener('click', () => {
-    if (cleanedData.length === 0) return;
+  function renderTable() {
+    resultsTableBody.innerHTML = '';
     
-    const csvContent = Papa.unparse(cleanedData);
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' }); // Add BOM for excel Vietnamese accent support
+    const query = searchInput.value.trim().toLowerCase();
     
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
+    // Filter out duplicates from display (matching user mockup: duplicates are removed, warnings are shown)
+    // E.g., showing only valid, fixed, and errors
+    const visibleList = processedItemsList.filter(item => {
+      if (item.category === 'dup') return false; // Hide duplicates
+      
+      // Apply Search Filter
+      if (query !== '') {
+        const matchesClean = item.cleanValDisplay.toLowerCase().includes(query);
+        const matchesOriginal = item.originalValDisplay.toLowerCase().includes(query);
+        const matchesError = item.logs.join(' ').toLowerCase().includes(query);
+        return matchesClean || matchesOriginal || matchesError;
+      }
+      
+      return true;
+    });
     
-    // Create clean file name
-    let exportName = 'data_cleaned.csv';
-    if (currentFileName) {
-      const parts = currentFileName.split('.');
-      parts.pop();
-      exportName = parts.join('.') + '_cleaned.csv';
+    if (visibleList.length === 0) {
+      resultsTableBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-table-state">
+            ${processedItemsList.length === 0 ? 'Nhập dữ liệu vào ô bên trái để hiển thị kết quả.' : 'Không tìm thấy kết quả phù hợp.'}
+          </td>
+        </tr>
+      `;
+      return;
     }
     
-    link.setAttribute("download", exportName);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    visibleList.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      
+      // 1. STT
+      const tdIdx = document.createElement('td');
+      tdIdx.textContent = index + 1;
+      tr.appendChild(tdIdx);
+      
+      // 2. Cleaned value vs original
+      const tdVal = document.createElement('td');
+      tdVal.innerHTML = `
+        <span class="col-clean-val">${item.cleanValDisplay || '-'}</span>
+        <span class="col-orig-val">${item.originalValDisplay || '-'}</span>
+      `;
+      tr.appendChild(tdVal);
+      
+      // 3. Status Badge
+      const tdStatus = document.createElement('td');
+      tdStatus.style.textAlign = 'center';
+      
+      if (item.category === 'error') {
+        // Red split badge for "CẢNH BÁO"
+        tdStatus.innerHTML = `<span class="badge-warning-wrap"><span>CẢNH</span><span>BÁO</span></span>`;
+      } else if (item.category === 'fixed') {
+        tdStatus.innerHTML = `<span class="badge badge-fixed">ĐÃ SỬA</span>`;
+      } else {
+        tdStatus.innerHTML = `<span class="badge badge-success">HỢP LỆ</span>`;
+      }
+      tr.appendChild(tdStatus);
+      
+      // 4. Log modification details
+      const tdLogs = document.createElement('td');
+      tdLogs.className = 'col-log-desc';
+      if (item.category === 'error') {
+        tdLogs.textContent = item.logs.join(', ');
+        tdLogs.style.color = '#f87171'; // Red highlight for warning details
+      } else if (item.category === 'fixed') {
+        tdLogs.textContent = item.logs.join(', ');
+        tdLogs.style.color = '#fbbf24'; // Yellow highlight for fixes
+      } else {
+        tdLogs.textContent = 'Hợp lệ';
+        tdLogs.style.color = '#a0aec0';
+      }
+      tr.appendChild(tdLogs);
+      
+      // 5. Actions: Copy and Delete
+      const tdActions = document.createElement('td');
+      tdActions.innerHTML = `
+        <div class="action-cell">
+          <button class="btn-table-action btn-copy" title="Copy dòng này">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H5.4M9 2.25H18a2.25 2.25 0 012.25 2.25v12.25A2.25 2.25 0 0118 19H9a2.25 2.25 0 01-2.25-2.25V4.5A2.25 2.25 0 019 2.25z" />
+            </svg>
+          </button>
+          <button class="btn-table-action btn-delete" title="Xóa dòng này">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+          </button>
+        </div>
+      `;
+      
+      // Bind inline action events
+      tdActions.querySelector('.btn-copy').onclick = () => {
+        navigator.clipboard.writeText(item.cleanValDisplay);
+        showTemporaryFeedback(tdActions.querySelector('.btn-copy'), 'Copied');
+      };
+      
+      tdActions.querySelector('.btn-delete').onclick = () => {
+        deletedItemIds.add(item.id);
+        processData(); // re-process list to exclude this item
+      };
+      
+      tr.appendChild(tdActions);
+      resultsTableBody.appendChild(tr);
+    });
+  }
+
+  function showTemporaryFeedback(button, text) {
+    const originalHTML = button.innerHTML;
+    button.innerHTML = `<span style="font-size: 0.65rem; color:#60a5fa; font-weight:700;">${text}</span>`;
+    setTimeout(() => {
+      button.innerHTML = originalHTML;
+    }, 1000);
+  }
+
+  // ==========================================================================
+  // --- Toolbar Actions (Copy All & File Exporters) ---
+  // ==========================================================================
+  
+  // Copy All button
+  btnCopyAll.addEventListener('click', () => {
+    // Get all cleaned items that are NOT errors or duplicates
+    const cleanItems = processedItemsList
+      .filter(item => item.category === 'valid' || item.category === 'fixed')
+      .map(item => item.cleanValDisplay);
+      
+    if (cleanItems.length === 0) {
+      alert('Không có dữ liệu sạch nào để sao chép!');
+      return;
+    }
+    
+    const textToCopy = cleanItems.join('\n');
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      const originalText = btnCopyAll.innerHTML;
+      btnCopyAll.innerHTML = '✓ Đã Copy Hết!';
+      btnCopyAll.style.backgroundColor = '#10b981';
+      setTimeout(() => {
+        btnCopyAll.innerHTML = originalText;
+        btnCopyAll.style.backgroundColor = 'var(--primary)';
+      }, 1500);
+    });
   });
 
-  // Excel (.xlsx) Downloader via SheetJS
+  // Export TXT
+  btnExportTXT.addEventListener('click', () => {
+    const cleanItems = processedItemsList
+      .filter(item => item.category === 'valid' || item.category === 'fixed')
+      .map(item => item.cleanValDisplay);
+      
+    if (cleanItems.length === 0) {
+      alert('Không có dữ liệu sạch để xuất!');
+      return;
+    }
+    
+    const content = cleanItems.join('\n');
+    downloadBlob(content, 'text/plain', 'data_cleaned.txt');
+  });
+
+  // Export CSV
+  btnExportCSV.addEventListener('click', () => {
+    // Collect headers and clean rows
+    const cleanRows = processedItemsList
+      .filter(item => item.category === 'valid' || item.category === 'fixed')
+      .map(item => item.cleanRow);
+      
+    if (cleanRows.length === 0) {
+      alert('Không có dữ liệu sạch để xuất!');
+      return;
+    }
+    
+    let csvData = [];
+    if (loadedFileData) {
+      csvData = [loadedFileHeaders, ...cleanRows];
+    } else {
+      // Manual mode raw output
+      csvData = [['Dữ liệu sạch'], ...cleanRows];
+    }
+    
+    const content = Papa.unparse(csvData);
+    downloadBlob("\uFEFF" + content, 'text/csv;charset=utf-8;', 'data_cleaned.csv');
+  });
+
+  // Export Excel (.xlsx) via SheetJS
   btnExportXLSX.addEventListener('click', () => {
-    if (cleanedData.length === 0) return;
+    const cleanRows = processedItemsList
+      .filter(item => item.category === 'valid' || item.category === 'fixed')
+      .map(item => item.cleanRow);
+      
+    if (cleanRows.length === 0) {
+      alert('Không có dữ liệu sạch để xuất!');
+      return;
+    }
+    
+    let xlsxData = [];
+    if (loadedFileData) {
+      xlsxData = [loadedFileHeaders, ...cleanRows];
+    } else {
+      xlsxData = [['Dữ liệu sạch'], ...cleanRows];
+    }
 
     try {
-      // Create a worksheet from array of arrays
-      const worksheet = XLSX.utils.aoa_to_sheet(cleanedData);
-      
-      // Create a workbook and append worksheet
+      const sheet = XLSX.utils.aoa_to_sheet(xlsxData);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Cleaned");
+      XLSX.utils.book_append_sheet(workbook, sheet, "Data Cleaned");
       
       // Auto-fit column widths
-      const colWidths = cleanedData[0].map((_, colIdx) => {
+      sheet['!cols'] = xlsxData[0].map((_, colIdx) => {
         let maxLen = 10;
-        cleanedData.forEach(row => {
+        xlsxData.forEach(row => {
           const val = row[colIdx] !== undefined ? String(row[colIdx]) : '';
           if (val.length > maxLen) maxLen = val.length;
         });
         return { wch: maxLen + 2 };
       });
-      worksheet['!cols'] = colWidths;
-
-      // Write excel file
+      
       let exportName = 'data_cleaned.xlsx';
       if (currentFileName) {
         const parts = currentFileName.split('.');
@@ -1108,4 +1009,41 @@ Nguyễn Thị Hương, 0355443322, huongnt@temp-mail.org
       alert('Không thể xuất tệp Excel: ' + err.message);
     }
   });
+
+  function downloadBlob(content, type, defaultName) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    
+    let exportName = defaultName;
+    if (currentFileName) {
+      const parts = currentFileName.split('.');
+      parts.pop();
+      const ext = defaultName.split('.').pop();
+      exportName = parts.join('.') + '_cleaned.' + ext;
+    }
+    
+    link.setAttribute("download", exportName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // --- Initial run ---
+  // Load sample data into rawTextarea initially to match the screenshot representation!
+  rawTextarea.value = `0904020011
+090.402.0011
+090 402 0011
+0904 020 011
++84904020011
+(+84)904 020 011
+090-402-0011
+09040200111
+090402001
+904020011`;
+  
+  updateCharCount();
+  processData();
 });
