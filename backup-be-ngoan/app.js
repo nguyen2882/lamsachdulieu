@@ -1,21 +1,6 @@
 // === 1. HỆ THỐNG AVATAR SVG ĐÁNG YÊU (OFFLINE) ===
 const AVATARS = {
-  cat: `<svg viewBox="0 0 100 100" width="100%" height="100%">
-    <circle cx="50" cy="55" r="35" fill="#f59e0b"/>
-    <polygon points="20,30 40,45 20,55" fill="#d97706"/>
-    <polygon points="80,30 60,45 80,55" fill="#d97706"/>
-    <polygon points="25,35 35,45 25,50" fill="#fca5a5"/>
-    <polygon points="75,35 65,45 75,50" fill="#fca5a5"/>
-    <circle cx="38" cy="55" r="4" fill="#1e293b"/>
-    <circle cx="62" cy="55" r="4" fill="#1e293b"/>
-    <circle cx="36" cy="53" r="1.5" fill="#fff"/>
-    <circle cx="60" cy="53" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="65" rx="4" ry="3" fill="#f43f5e"/>
-    <ellipse cx="32" cy="64" rx="5" ry="3" fill="#fecdd3"/>
-    <ellipse cx="68" cy="64" rx="5" ry="3" fill="#fecdd3"/>
-    <path d="M50,67 Q47,72 42,70 M50,67 Q53,72 58,70" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-    <path d="M25,60 L12,58 M25,64 L10,64 M25,68 L12,70 M75,60 L88,58 M75,64 L90,64 M75,68 L88,70" stroke="#1e293b" stroke-width="2" stroke-linecap="round"/>
-  </svg>`,
+  cat: `<img src="kid_avatar.png" style="width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 50%; display: block;" alt="Bé Ngoan">`,
   panda: `<svg viewBox="0 0 100 100" width="100%" height="100%">
     <circle cx="50" cy="55" r="35" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
     <circle cx="22" cy="30" r="11" fill="#1e293b"/>

@@ -1,10 +1,11 @@
-const CACHE_NAME = "be-ngoan-v2";
+const CACHE_NAME = "be-ngoan-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./index.css",
   "./app.js",
   "./manifest.json",
+  "./kid_avatar.png",
   "./icon.svg",
   "./icon.png",
   "./icon-192.png",
